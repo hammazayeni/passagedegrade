@@ -42,20 +42,21 @@ export default function Login() {
     }
   };
 
+  const BASE = import.meta.env.BASE_URL || "/";
   const LOGOS = [
-    "/assets/logos/TAEKWONDO_SBEITLA_-removebg-preview.png",
-    "/assets/logos/kukkiwon.png",
-    "/assets/logos/Elite%20Sportive%20-%201.png",
-    "/assets/logos/img_4026_nobg_new.png",
-    "/assets/logos/WAADTI.png",
-    "/assets/logos/federation-tunisienne-de-taekwondo.png",
-    "/assets/logos/diamond-gym.png",
+    `${BASE}assets/logos/TAEKWONDO_SBEITLA_-removebg-preview.png`,
+    `${BASE}assets/logos/kukkiwon.png`,
+    `${BASE}assets/logos/Elite Sportive - 1.png`,
+    `${BASE}assets/logos/img_4026_nobg_new.png`,
+    `${BASE}assets/logos/WAADTI.png`,
+    `${BASE}assets/logos/federation-tunisienne-de-taekwondo.png`,
+    `${BASE}assets/logos/diamond-gym.png`,
   ];
   const carouselLogos = Array(10).fill(null).flatMap(() => LOGOS);
 
   return (
     <div className="relative min-h-screen bg-black text-white flex flex-col justify-center px-4 overflow-hidden">
-      <div className="absolute inset-0 z-0 opacity-40" style={{ backgroundImage: "url('/assets/bg-taekwondo.jpg')", backgroundSize: "cover", backgroundPosition: "center", filter: "grayscale(100%) contrast(120%) brightness(60%)" }} />
+      <div className="absolute inset-0 z-0 opacity-40" style={{ backgroundImage: `url('${BASE}assets/bg-taekwondo.jpg')`, backgroundSize: "cover", backgroundPosition: "center", filter: "grayscale(100%) contrast(120%) brightness(60%)" }} />
       <div className="absolute inset-0 z-0 bg-gradient-to-br from-black via-transparent to-black opacity-90" />
       <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-gray-800/20 via-black/60 to-black" />
 

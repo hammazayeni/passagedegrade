@@ -2,6 +2,7 @@ import { useStudents } from "@/hooks/useStudents";
 import { BeltBadge } from "@/components/BeltBadge";
 import { motion, AnimatePresence } from "framer-motion";
 import { useMemo, useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { CheckCircle, XCircle } from "lucide-react";
 
 // waadti logo removed from carousel
@@ -9,6 +10,7 @@ import { CheckCircle, XCircle } from "lucide-react";
 export default function Projection() {
   const { students } = useStudents();
   const [controlledId, setControlledId] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const read = () => {
@@ -268,7 +270,7 @@ export default function Projection() {
               className="px-3 py-1 rounded-md border border-white/10 text-gray-400 hover:text-white hover:border-white/20 transition"
               onClick={() => {
                 localStorage.removeItem("projectionAuth");
-                location.href = "/login";
+                navigate("/login", { replace: true });
               }}
             >
               Déconnexion
