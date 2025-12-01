@@ -3,8 +3,9 @@ import react from '@vitejs/plugin-react-swc';
 import { VitePWA } from 'vite-plugin-pwa';
 import path from 'path';
 
+const baseFromEnv = process.env.VITE_BASE || '/Taekwondo-Ptomotion-Test/';
 export default defineConfig(({ mode }) => ({
-  base: '/Taekwondo-Ptomotion-Test/',
+  base: baseFromEnv,
   plugins: [
     react(),
     VitePWA({
