@@ -15,7 +15,7 @@ const App = () => (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
-        {(typeof window !== 'undefined' && (window.location.protocol === 'file:' || (window as any).Capacitor)) ? (
+        {(typeof window !== 'undefined' && (window.location.protocol === 'file:' || (window as any).Capacitor || import.meta.env.BASE_URL !== '/')) ? (
           <HashRouter>
             <Routes>
               <Route path="/" element={<Login />} />
