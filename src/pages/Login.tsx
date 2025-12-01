@@ -130,6 +130,21 @@ export default function Login() {
 
 function LogoItem({ src }: { src: string }) {
   const [failed, setFailed] = useState(false);
+  const [reloadCount, setReloadCount] = useState(0);
+  const [encodedTried, setEncodedTried] = useState(false);
+  useEffect(() => {
+    if (failed) {
+      const t = setInterval(() => {
+        setFailed(false);
+        setReloadCount((c) => c + 1);
+      }, 30000);
+      return () => clearInterval(t);
+    }
+  }, [failed]);
+  const cacheBustedSrc = useMemo(() => {
+    const s = encodedTried ? src.replace(/ /g, '%20') : src;
+    return `${s}?v=${reloadCount}`;
+  }, [src, reloadCount, encodedTried]);
   const isDiamond = src.toLowerCase().includes("diamond");
   return (
     <div className="h-12 w-20 md:h-14 md:w-24 flex-shrink-0 grayscale hover:grayscale-0 transition-all duration-300 opacity-80 hover:opacity-100 flex items-center justify-center">
@@ -142,7 +157,19 @@ function LogoItem({ src }: { src: string }) {
           <div className="w-full h-full flex items-center justify-center bg-black text-white font-black text-[10px] md:text-xs tracking-widest">Diamond Gym</div>
         ) : null
       ) : (
-        <img src={src} alt="Partner Logo" className={`object-contain ${isDiamond ? 'max-h-[70%] max-w-[70%]' : 'max-h-full max-w-full'}`} onError={() => setFailed(true)} />
+        <img 
+          src={cacheBustedSrc} 
+          alt="Partner Logo" 
+          className={`object-contain ${isDiamond ? 'max-h-[70%] max-w-[70%]' : 'max-h-full max-w-full'}`} 
+          onError={() => {
+            if (!encodedTried && src.includes(' ')) {
+              setEncodedTried(true);
+              setReloadCount((c) => c + 1);
+            } else {
+              setFailed(true);
+            }
+          }}
+        />
       )}
     </div>
   );

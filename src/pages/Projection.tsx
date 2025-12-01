@@ -288,6 +288,7 @@ export default function Projection() {
 function LogoItem({ src }: { src: string }) {
   const [failed, setFailed] = useState(false);
   const [reloadCount, setReloadCount] = useState(0);
+  const [encodedTried, setEncodedTried] = useState(false);
   useEffect(() => {
     if (failed) {
       const t = setInterval(() => {
@@ -297,7 +298,10 @@ function LogoItem({ src }: { src: string }) {
       return () => clearInterval(t);
     }
   }, [failed]);
-  const cacheBustedSrc = useMemo(() => `${src}?v=${reloadCount}`, [src, reloadCount]);
+  const cacheBustedSrc = useMemo(() => {
+    const s = encodedTried ? src.replace(/ /g, '%20') : src;
+    return `${s}?v=${reloadCount}`;
+  }, [src, reloadCount, encodedTried]);
   const lower = src.toLowerCase();
   const isDiamond = lower.includes("diamond");
   const isFederation = lower.includes("federation");
@@ -316,7 +320,19 @@ function LogoItem({ src }: { src: string }) {
           <div className="w-full h-full flex items-center justify-center bg-black text-white font-black text-[10px] md:text-xs tracking-widest">Diamond Gym</div>
         ) : null
       ) : (
-        <img src={cacheBustedSrc} alt="Partner Logo" className={`object-contain ${isDiamond ? 'max-h-[70%] max-w-[70%]' : 'max-h-full max-w-full'} ${isLarge ? 'scale-110' : ''}`} onError={() => setFailed(true)} />
+        <img 
+          src={cacheBustedSrc} 
+          alt="Partner Logo" 
+          className={`object-contain ${isDiamond ? 'max-h-[70%] max-w-[70%]' : 'max-h-full max-w-full'} ${isLarge ? 'scale-110' : ''}`} 
+          onError={() => {
+            if (!encodedTried && src.includes(' ')) {
+              setEncodedTried(true);
+              setReloadCount((c) => c + 1);
+            } else {
+              setFailed(true);
+            }
+          }}
+        />
       )}
     </div>
   );
