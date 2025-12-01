@@ -34,7 +34,9 @@ export default function Dashboard() {
         {/* Header Section */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
           <div className="flex items-center gap-4">
-            <img src="/assets/logos/kukkiwon.png" alt="Site Logo" className="h-10 md:h-12 w-auto object-contain" />
+            {(() => { const BASE = import.meta.env.BASE_URL || '/'; return (
+              <img src={`${BASE}assets/logos/kukkiwon.png`} alt="Site Logo" className="h-10 md:h-12 w-auto object-contain" />
+            ); })()}
             <div>
               <h1 className="text-3xl font-black text-gray-900 tracking-tight">Taekwondo Sbeitla</h1>
               <p className="text-gray-500 font-medium">Tableau de Bord des Examens de Passage</p>
