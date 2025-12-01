@@ -54,7 +54,7 @@ export default function Projection() {
   const LOGOS = [
     `${BASE}assets/logos/TAEKWONDO_SBEITLA_-removebg-preview.png`,
     `${BASE}assets/logos/kukkiwon.png`,
-    `${BASE}assets/logos/Elite%20Sportive%20-%201.png`,
+    `${BASE}assets/logos/Elite Sportive - 1.png`,
     `${BASE}assets/logos/img_4026_nobg_new.png`,
     `${BASE}assets/logos/WAADTI.png`,
     `${BASE}assets/logos/federation-tunisienne-de-taekwondo.png`,
