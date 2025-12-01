@@ -14,7 +14,7 @@ export default defineConfig(({ mode }) => ({
       manifest: {
         name: 'Taekwondo Sbeitla',
         short_name: 'Sbeitla',
-        start_url: '/',
+        start_url: '/Taekwondo-Ptomotion-Test/',
         display: 'standalone',
         background_color: '#000000',
         theme_color: '#dc2626',
