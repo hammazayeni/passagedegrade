@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Taekwondo Sbeitla</string>
+    <string name="title_activity_main">Taekwondo Sbeitla</string>
+    <string name="package_name">com.taekwondo.sbeitla</string>
+    <string name="custom_url_scheme">com.taekwondo.sbeitla</string>
+</resources>
