@@ -20,6 +20,7 @@ export default defineConfig(({ mode }) => ({
         theme_color: '#dc2626',
         description: 'Gestion des examens de passage et affichage en projection',
         icons: [
+          { src: 'assets/logos/kukkiwon.png', sizes: '180x180', type: 'image/png' },
           { src: 'assets/logos/kukkiwon.png', sizes: '192x192', type: 'image/png' },
           { src: 'assets/logos/kukkiwon.png', sizes: '512x512', type: 'image/png' }
         ]
