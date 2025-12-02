@@ -4,17 +4,6 @@ import { getFirestore, type Firestore } from "firebase/firestore";
 import { getAnalytics, isSupported } from "firebase/analytics";
 import type { Analytics } from "firebase/analytics";
 
-function loadRuntimeConfig() {
-  try {
-    const raw = typeof window !== "undefined" ? localStorage.getItem("firebaseConfigJSON") : null;
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      if (parsed && parsed.apiKey && parsed.projectId) return parsed;
-    }
-  } catch {}
-  return null;
-}
-
 const defaultConfig = {
   apiKey: "AIzaSyCTf1Lj_Rklig_3eKUCTXJQty2i16rjKGk",
   authDomain: "promotion--test.firebaseapp.com",
@@ -25,7 +14,7 @@ const defaultConfig = {
   measurementId: "G-29GYQVBD8Q",
 };
 
-const firebaseConfig = loadRuntimeConfig() || {
+const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY || defaultConfig.apiKey,
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || defaultConfig.authDomain,
   projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || defaultConfig.projectId,

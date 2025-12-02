@@ -6,8 +6,6 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Textarea } from "@/components/ui/textarea";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -18,9 +16,6 @@ export default function Login() {
   const from = (location.state as any)?.from as string | undefined;
   const initialMode = useMemo(() => (from && from.startsWith("/projection") ? "projection" : "dashboard"), [from]);
   const [mode, setMode] = useState<"projection" | "dashboard">(initialMode as any);
-  const [cfgOpen, setCfgOpen] = useState(false);
-  const [cfgText, setCfgText] = useState("");
-  const [cfgError, setCfgError] = useState<string | null>(null);
 
   useEffect(() => {
     setMode(initialMode as any);
@@ -47,21 +42,6 @@ export default function Login() {
     }
   };
 
-  const saveFirebaseConfig = () => {
-    try {
-      const parsed = JSON.parse(cfgText);
-      if (!parsed || !parsed.apiKey || !parsed.projectId) {
-        setCfgError("Missing apiKey or projectId");
-        return;
-      }
-      localStorage.setItem("firebaseConfigJSON", JSON.stringify(parsed));
-      setCfgError(null);
-      setCfgOpen(false);
-      navigate(0);
-    } catch (e) {
-      setCfgError("Invalid JSON");
-    }
-  };
 
   const BASE = import.meta.env.BASE_URL || "/";
   const LOGOS = [
@@ -129,26 +109,7 @@ export default function Login() {
                 {error && <div className="text-red-500 text-sm">{error}</div>}
                 <Button type="submit" className="w-full">Sign in</Button>
               </form>
-              <div className="flex justify-between items-center pt-2">
-                <div className="text-xs text-neutral-400">Need cloud sync?</div>
-                <Dialog open={cfgOpen} onOpenChange={setCfgOpen}>
-                  <DialogTrigger asChild>
-                    <Button variant="outline" size="sm">Cloud Config</Button>
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-[500px]">
-                    <DialogHeader>
-                      <DialogTitle>Firebase Config</DialogTitle>
-                      <DialogDescription>Paste JSON with apiKey, projectId, etc. The app will reload.</DialogDescription>
-                    </DialogHeader>
-                    <Textarea value={cfgText} onChange={(e) => setCfgText(e.target.value)} placeholder={'{ "apiKey": "", "projectId": "", "authDomain": "", "appId": "" }'} className="min-h-32" />
-                    {cfgError && <div className="text-red-500 text-sm">{cfgError}</div>}
-                    <div className="flex justify-end gap-2">
-                      <Button variant="ghost" onClick={() => setCfgOpen(false)}>Cancel</Button>
-                      <Button onClick={saveFirebaseConfig}>Save & Reload</Button>
-                    </div>
-                  </DialogContent>
-                </Dialog>
-              </div>
+              
             </div>
           </CardContent>
         </Card>

@@ -5,10 +5,55 @@ import { db } from "@/lib/firebase";
 import { collection, doc, onSnapshot, query, orderBy, setDoc, updateDoc, deleteDoc, writeBatch } from "firebase/firestore";
 
 const STORAGE_KEY = "taekwondo-sbeitla-data";
+const OPS_KEY = "taekwondo-sbeitla-ops";
 
 export function useStudents() {
   const [students, setStudents] = useState<Student[]>([]);
   const [cloudConnected, setCloudConnected] = useState(false);
+
+  const getOps = () => {
+    try {
+      const raw = localStorage.getItem(OPS_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch {
+      return [];
+    }
+  };
+  const setOps = (ops: any[]) => {
+    try {
+      localStorage.setItem(OPS_KEY, JSON.stringify(ops));
+    } catch {}
+  };
+  const enqueueOp = (op: any) => {
+    const ops = getOps();
+    ops.push(op);
+    setOps(ops);
+  };
+  const flushOps = async () => {
+    if (!db) return;
+    const ops = getOps();
+    if (!ops || ops.length === 0) return;
+    try {
+      for (const op of ops) {
+        if (op?.type === "add" && op.payload) {
+          await setDoc(doc(db, "students", op.payload.id), op.payload);
+        } else if (op?.type === "bulkAdd" && Array.isArray(op.payload)) {
+          const batch = writeBatch(db);
+          op.payload.forEach((s: Student) => batch.set(doc(db, "students", s.id), s));
+          await batch.commit();
+        } else if (op?.type === "update" && op.id && op.updates) {
+          await updateDoc(doc(db, "students", op.id), op.updates as any);
+        } else if (op?.type === "delete" && op.id) {
+          await deleteDoc(doc(db, "students", op.id));
+        } else if (op?.type === "reorder" && Array.isArray(op.payload)) {
+          const batch = writeBatch(db);
+          op.payload.forEach((s: Student) => batch.update(doc(db, "students", s.id), { order: s.order }));
+          await batch.commit();
+        }
+      }
+      setOps([]);
+    } catch {}
+  };
 
   useEffect(() => {
     if (db) {
@@ -43,6 +88,7 @@ export function useStudents() {
           }
         } catch {}
       });
+      flushOps();
       return () => unsub();
     } else {
       setCloudConnected(false);
@@ -75,6 +121,8 @@ export function useStudents() {
     saveStudents(newStudents);
     if (db) {
       setDoc(doc(db, "students", prepared.id), prepared).catch(() => {});
+    } else {
+      enqueueOp({ type: "add", payload: prepared });
     }
     toast.success("Élève ajouté avec succès");
   };
@@ -96,6 +144,8 @@ export function useStudents() {
         batch.set(doc(db, "students", s.id), s);
       });
       batch.commit().catch(() => {});
+    } else {
+      enqueueOp({ type: "bulkAdd", payload: preparedStudents });
     }
     // Toast handled in component
   };
@@ -105,6 +155,8 @@ export function useStudents() {
     saveStudents(newStudents);
     if (db) {
       updateDoc(doc(db, "students", id), updates as any).catch(() => {});
+    } else {
+      enqueueOp({ type: "update", id, updates });
     }
     toast.success("Élève mis à jour");
   };
@@ -114,6 +166,8 @@ export function useStudents() {
     saveStudents(newStudents);
     if (db) {
       deleteDoc(doc(db, "students", id)).catch(() => {});
+    } else {
+      enqueueOp({ type: "delete", id });
     }
     toast.success("Élève supprimé");
   };
@@ -125,6 +179,8 @@ export function useStudents() {
       const batch = writeBatch(db);
       reordered.forEach((s) => batch.update(doc(db, "students", s.id), { order: s.order }));
       batch.commit().catch(() => {});
+    } else {
+      enqueueOp({ type: "reorder", payload: reordered });
     }
   };
 
