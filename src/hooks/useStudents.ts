@@ -57,11 +57,12 @@ export function useStudents() {
   };
 
   const addStudent = (student: Student) => {
+    const nextOrder = students.length > 0 ? Math.max(...students.map(s => s.order)) + 1 : 1;
+    const prepared = { ...student, order: student.order ?? nextOrder } as Student;
+    const newStudents = [...students, prepared];
+    saveStudents(newStudents);
     if (db) {
-      setDoc(doc(db, "students", student.id), student).catch(() => {});
-    } else {
-      const newStudents = [...students, student];
-      saveStudents(newStudents);
+      setDoc(doc(db, "students", prepared.id), prepared).catch(() => {});
     }
     toast.success("Élève ajouté avec succès");
   };
@@ -75,47 +76,43 @@ export function useStudents() {
       order: startOrder + index + 1
     }));
     
+    const updatedList = [...students, ...preparedStudents];
+    saveStudents(updatedList);
     if (db) {
       const batch = writeBatch(db);
       preparedStudents.forEach((s) => {
         batch.set(doc(db, "students", s.id), s);
       });
       batch.commit().catch(() => {});
-    } else {
-      const updatedList = [...students, ...preparedStudents];
-      saveStudents(updatedList);
     }
     // Toast handled in component
   };
 
   const updateStudent = (id: string, updates: Partial<Student>) => {
+    const newStudents = students.map((s) => (s.id === id ? { ...s, ...updates } : s));
+    saveStudents(newStudents);
     if (db) {
       updateDoc(doc(db, "students", id), updates as any).catch(() => {});
-    } else {
-      const newStudents = students.map((s) => (s.id === id ? { ...s, ...updates } : s));
-      saveStudents(newStudents);
     }
     toast.success("Élève mis à jour");
   };
 
   const deleteStudent = (id: string) => {
+    const newStudents = students.filter((s) => s.id !== id);
+    saveStudents(newStudents);
     if (db) {
       deleteDoc(doc(db, "students", id)).catch(() => {});
-    } else {
-      const newStudents = students.filter((s) => s.id !== id);
-      saveStudents(newStudents);
     }
     toast.success("Élève supprimé");
   };
 
   const reorderStudents = (newOrder: Student[]) => {
     const reordered = newOrder.map((s, index) => ({ ...s, order: index + 1 }));
+    saveStudents(reordered);
     if (db) {
       const batch = writeBatch(db);
       reordered.forEach((s) => batch.update(doc(db, "students", s.id), { order: s.order }));
       batch.commit().catch(() => {});
-    } else {
-      saveStudents(reordered);
     }
   };
 
