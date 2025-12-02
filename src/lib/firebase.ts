@@ -1,5 +1,5 @@
 import { initializeApp, type FirebaseApp } from "firebase/app";
-import { getAuth, type Auth } from "firebase/auth";
+import { getAuth, type Auth, signInAnonymously } from "firebase/auth";
 import { getFirestore, type Firestore } from "firebase/firestore";
 import { getAnalytics, isSupported } from "firebase/analytics";
 import type { Analytics } from "firebase/analytics";
@@ -51,6 +51,9 @@ if (typeof window !== "undefined" && app) {
   isSupported()
     .then((ok) => { if (ok) analytics = getAnalytics(app); })
     .catch(() => {});
+  if (auth) {
+    signInAnonymously(auth).catch(() => {});
+  }
 }
 
 export { app, auth, db, analytics };
