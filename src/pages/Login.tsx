@@ -54,6 +54,8 @@ export default function Login() {
     `${BASE}assets/logos/diamond-gym.png`,
   ];
   const carouselLogos = Array(10).fill(null).flatMap(() => LOGOS);
+  const motionDistance = -Math.max(800, Math.floor((carouselLogos.length * 120) / 2));
+  const motionDuration = Math.max(25, Math.floor(carouselLogos.length * 0.8));
 
   return (
     <div className="relative min-h-screen bg-black text-white flex flex-col justify-center px-4 overflow-hidden">
@@ -119,7 +121,7 @@ export default function Login() {
         <div className="w-full overflow-hidden py-3 relative">
           <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-black to-transparent z-10" />
           <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-black to-transparent z-10" />
-          <motion.div className="flex items-center gap-3 w-max" animate={{ x: [0, -800] }} transition={{ repeat: Infinity, duration: 20, ease: "linear" }}>
+          <motion.div className="flex items-center gap-3 w-max" animate={{ x: [0, motionDistance] }} transition={{ repeat: Infinity, duration: motionDuration, ease: "linear" }}>
             {carouselLogos.map((logo, index) => (
               <LogoItem key={index} src={logo} />
             ))}
@@ -147,22 +149,27 @@ function LogoItem({ src }: { src: string }) {
     const s = encodedTried ? src.replace(/ /g, '%20') : src;
     return `${s}?v=${reloadCount}`;
   }, [src, reloadCount, encodedTried]);
-  const isDiamond = src.toLowerCase().includes("diamond");
+  const lower = src.toLowerCase();
+  const isDiamond = lower.includes("diamond");
+  const isFederation = lower.includes("federation");
+  const isWaadti = lower.includes("waadti");
+  const isSufetula = lower.includes("sufetula");
+  const isLarge = isFederation || isWaadti || isSufetula;
   return (
-    <div className="h-12 w-20 md:h-14 md:w-24 flex-shrink-0 grayscale hover:grayscale-0 transition-all duration-300 opacity-80 hover:opacity-100 flex items-center justify-center">
+    <div className={`${isLarge ? 'h-10 w-20 md:h-16 md:w-32' : 'h-8 w-16 md:h-12 md:w-24'} flex-shrink-0 grayscale hover:grayscale-0 transition-all duration-300 opacity-80 hover:opacity-100 flex items-center justify-center`}>
       {failed ? (
-        src.toLowerCase().includes("waadti") ? (
+        lower.includes("waadti") ? (
           <div className="w-full h-full flex items-center justify-center bg-black text-white font-black text-[10px] md:text-xs tracking-widest">WAADTI©</div>
-        ) : src.toLowerCase().includes("federation") ? (
+        ) : lower.includes("federation") ? (
           <div className="w-full h-full flex items-center justify-center bg-black text-white font-bold text-[9px] md:text-[10px] tracking-widest text-center px-1">Fédération Tunisienne de Taekwondo</div>
-        ) : src.toLowerCase().includes("diamond") ? (
+        ) : lower.includes("diamond") ? (
           <div className="w-full h-full flex items-center justify-center bg-black text-white font-black text-[10px] md:text-xs tracking-widest">Diamond Gym</div>
         ) : null
       ) : (
         <img 
           src={cacheBustedSrc} 
           alt="Partner Logo" 
-          className={`object-contain ${isDiamond ? 'max-h-[70%] max-w-[70%]' : 'max-h-full max-w-full'}`} 
+          className={`object-contain ${isDiamond ? 'max-h-[70%] max-w-[70%]' : 'max-h-full max-w-full'} ${isLarge ? 'scale-105' : ''}`} 
           onError={() => {
             if (!encodedTried && src.includes(' ')) {
               setEncodedTried(true);

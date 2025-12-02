@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react-swc';
 import { VitePWA } from 'vite-plugin-pwa';
 import path from 'path';
 
-const baseFromEnv = process.env.VITE_BASE || '/Taekwondo-Ptomotion-Test/';
+const baseFromEnv = process.env.VITE_BASE || '/Taekwondo-Promotion-Test/';
 export default defineConfig(({ mode }) => ({
   base: baseFromEnv,
   plugins: [
@@ -15,7 +15,7 @@ export default defineConfig(({ mode }) => ({
       manifest: {
         name: 'Taekwondo Sbeitla',
         short_name: 'Sbeitla',
-        start_url: '/Taekwondo-Ptomotion-Test/',
+        start_url: '/Taekwondo-Promotion-Test/',
         display: 'standalone',
         background_color: '#000000',
         theme_color: '#dc2626',
