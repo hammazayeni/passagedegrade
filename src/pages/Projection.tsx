@@ -79,7 +79,7 @@ export default function Projection() {
   const baseLogos = Array(6).fill(0).flatMap(() => LOGOS);
   const carouselLogosLoop = [...baseLogos, ...baseLogos];
   const motionDistance = -Math.max(1000, Math.floor((carouselLogosLoop.length * 120) / 2));
-  const motionDuration = Math.max(25, carouselLogosLoop.length * 4);
+  const motionDuration = Math.max(80, carouselLogosLoop.length * 8);
 
   if (!currentStudent && students.length === 0) {
     return (

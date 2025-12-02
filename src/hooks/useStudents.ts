@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { Student, TestStatus } from "@/types";
 import { toast } from "sonner";
-import { db } from "@/lib/firebase";
+import { db, auth } from "@/lib/firebase";
+import { signInAnonymously } from "firebase/auth";
 import { collection, doc, onSnapshot, query, orderBy, setDoc, updateDoc, deleteDoc, writeBatch } from "firebase/firestore";
 
 export function useStudents() {
@@ -33,10 +34,11 @@ export function useStudents() {
     const newStudents = [...students, prepared];
     saveStudents(newStudents);
     try {
+      if (auth && !auth.currentUser) { try { await signInAnonymously(auth); } catch {} }
       if (db) { await setDoc(doc(db, "students", prepared.id), prepared); }
       toast.success("Élève ajouté avec succès");
-    } catch (e) {
-      toast.error("Échec de la synchronisation Cloud. Vérifiez la connexion/règles.");
+    } catch (e: any) {
+      toast.error(`Échec de la synchronisation Cloud: ${e?.message || e}`);
     }
   };
   
@@ -52,13 +54,14 @@ export function useStudents() {
     const updatedList = [...students, ...preparedStudents];
     saveStudents(updatedList);
     try {
+      if (auth && !auth.currentUser) { try { await signInAnonymously(auth); } catch {} }
       if (db) {
         const batch = writeBatch(db);
         preparedStudents.forEach((s) => { batch.set(doc(db, "students", s.id), s); });
         await batch.commit();
       }
-    } catch (e) {
-      toast.error("Import non synchronisé. Vérifiez la connexion/règles.");
+    } catch (e: any) {
+      toast.error(`Import non synchronisé: ${e?.message || e}`);
     }
     // Toast handled in component
   };
@@ -67,10 +70,11 @@ export function useStudents() {
     const newStudents = students.map((s) => (s.id === id ? { ...s, ...updates } : s));
     saveStudents(newStudents);
     try {
+      if (auth && !auth.currentUser) { try { await signInAnonymously(auth); } catch {} }
       if (db) { await updateDoc(doc(db, "students", id), updates as any); }
       toast.success("Élève mis à jour");
-    } catch (e) {
-      toast.error("Mise à jour non synchronisée. Vérifiez la connexion/règles.");
+    } catch (e: any) {
+      toast.error(`Mise à jour non synchronisée: ${e?.message || e}`);
     }
   };
 
@@ -78,10 +82,11 @@ export function useStudents() {
     const newStudents = students.filter((s) => s.id !== id);
     saveStudents(newStudents);
     try {
+      if (auth && !auth.currentUser) { try { await signInAnonymously(auth); } catch {} }
       if (db) { await deleteDoc(doc(db, "students", id)); }
       toast.success("Élève supprimé");
-    } catch (e) {
-      toast.error("Suppression non synchronisée. Vérifiez la connexion/règles.");
+    } catch (e: any) {
+      toast.error(`Suppression non synchronisée: ${e?.message || e}`);
     }
   };
 
@@ -89,13 +94,14 @@ export function useStudents() {
     const reordered = newOrder.map((s, index) => ({ ...s, order: index + 1 }));
     saveStudents(reordered);
     try {
+      if (auth && !auth.currentUser) { try { await signInAnonymously(auth); } catch {} }
       if (db) {
         const batch = writeBatch(db);
         reordered.forEach((s) => batch.update(doc(db, "students", s.id), { order: s.order }));
         await batch.commit();
       }
-    } catch (e) {
-      toast.error("Réorganisation non synchronisée. Vérifiez la connexion/règles.");
+    } catch (e: any) {
+      toast.error(`Réorganisation non synchronisée: ${e?.message || e}`);
     }
   };
 

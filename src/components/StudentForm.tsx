@@ -8,6 +8,8 @@ import { BELT_ORDER } from "@/lib/constants";
 import { Student, BeltLevel } from "@/types";
 import { v4 as uuidv4 } from "uuid";
 import { Plus, Save, Upload } from "lucide-react";
+import { storage } from "@/lib/firebase";
+import { ref, uploadString, getDownloadURL } from "firebase/storage";
 
 interface StudentFormProps {
   onSubmit: (student: Student) => void;
@@ -23,14 +25,31 @@ export function StudentForm({ onSubmit, trigger, initialData }: StudentFormProps
   const BASE = import.meta.env.BASE_URL || "/";
   const [photoUrl, setPhotoUrl] = useState(initialData?.photoUrl || `${BASE}assets/default-avatar_variant_2.png`);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const id = initialData?.id || uuidv4();
+    let finalPhotoUrl = photoUrl;
+    if (finalPhotoUrl && finalPhotoUrl.startsWith("data:")) {
+      if (storage) {
+        try {
+          const mime = finalPhotoUrl.substring(5, finalPhotoUrl.indexOf(";"));
+          const ext = mime.includes("png") ? "png" : mime.includes("jpeg") || mime.includes("jpg") ? "jpg" : "jpg";
+          const objectRef = ref(storage, `students/${id}.${ext}`);
+          await uploadString(objectRef, finalPhotoUrl, "data_url");
+          finalPhotoUrl = await getDownloadURL(objectRef);
+        } catch {
+          finalPhotoUrl = `${BASE}assets/default-avatar_variant_2.png`;
+        }
+      } else {
+        finalPhotoUrl = `${BASE}assets/default-avatar_variant_2.png`;
+      }
+    }
     const student: Student = {
-      id: initialData?.id || uuidv4(),
+      id,
       fullName,
       currentBelt,
       nextBelt,
-      photoUrl,
+      photoUrl: finalPhotoUrl,
       order: initialData?.order || 999,
       status: initialData?.status || "PENDING",
     };

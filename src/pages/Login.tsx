@@ -55,7 +55,7 @@ export default function Login() {
   ];
   const carouselLogos = Array(10).fill(null).flatMap(() => LOGOS);
   const motionDistance = -Math.max(800, Math.floor((carouselLogos.length * 120) / 2));
-  const motionDuration = Math.max(25, Math.floor(carouselLogos.length * 0.8));
+  const motionDuration = Math.max(80, Math.floor(carouselLogos.length * 1.6));
 
   return (
     <div className="relative min-h-screen bg-black text-white flex flex-col justify-center px-4 overflow-hidden">
