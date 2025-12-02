@@ -1,5 +1,5 @@
 import { initializeApp, type FirebaseApp } from "firebase/app";
-import { getAuth, type Auth, signInAnonymously } from "firebase/auth";
+import { getAuth, type Auth, signInAnonymously, onAuthStateChanged } from "firebase/auth";
 import { getFirestore, type Firestore } from "firebase/firestore";
 import { getAnalytics, isSupported } from "firebase/analytics";
 import type { Analytics } from "firebase/analytics";
@@ -42,6 +42,13 @@ if (typeof window !== "undefined" && app) {
     .catch(() => {});
   if (auth) {
     signInAnonymously(auth).catch(() => {});
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        setTimeout(() => {
+          signInAnonymously(auth as Auth).catch(() => {});
+        }, 1500);
+      }
+    });
   }
 }
 
