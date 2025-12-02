@@ -21,13 +21,13 @@ export default function Dashboard() {
     try { const raw = localStorage.getItem("firebaseConfigJSON"); return raw || ""; } catch { return ""; }
   });
   const sampleConfig = `{
-  "apiKey": "...",
-  "authDomain": "...",
-  "projectId": "...",
-  "storageBucket": "...",
-  "messagingSenderId": "...",
-  "appId": "...",
-  "measurementId": "..."
+  "apiKey": "AIzaSyCTf1Lj_Rklig_3eKUCTXJQty2i16rjKGk",
+  "authDomain": "promotion--test.firebaseapp.com",
+  "projectId": "promotion--test",
+  "storageBucket": "promotion--test.firebasestorage.app",
+  "messagingSenderId": "904598948378",
+  "appId": "1:904598948378:web:661759bd8f8b858a24dfa3",
+  "measurementId": "G-29GYQVBD8Q"
 }`;
 
   const setProjectionCurrent = (id: string) => {
