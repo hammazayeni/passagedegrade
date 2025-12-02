@@ -1,4 +1,5 @@
 import { useStudents } from "@/hooks/useStudents";
+import { useState } from "react";
 import { StudentForm } from "@/components/StudentForm";
 import { ImportStudents } from "@/components/ImportStudents";
 import { BeltBadge } from "@/components/BeltBadge";
@@ -9,10 +10,25 @@ import { Link, useNavigate } from "react-router-dom";
 import { db } from "@/lib/firebase";
 import { doc, setDoc } from "firebase/firestore";
 import { ArrowUp, ArrowDown, Trash2, Edit, ExternalLink, Check, X, Users, Trophy, Eye } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 
 export default function Dashboard() {
   const { students, addStudent, addMultipleStudents, updateStudent, deleteStudent, reorderStudents, setStatus } = useStudents();
   const navigate = useNavigate();
+  const [firebaseOpen, setFirebaseOpen] = useState(false as any);
+  const [firebaseText, setFirebaseText] = useState<string>(() => {
+    try { const raw = localStorage.getItem("firebaseConfigJSON"); return raw || ""; } catch { return ""; }
+  });
+  const sampleConfig = `{
+  "apiKey": "...",
+  "authDomain": "...",
+  "projectId": "...",
+  "storageBucket": "...",
+  "messagingSenderId": "...",
+  "appId": "...",
+  "measurementId": "..."
+}`;
 
   const setProjectionCurrent = (id: string) => {
     const payload = { currentId: id, ts: Date.now() };
@@ -58,6 +74,7 @@ export default function Dashboard() {
             <div className="flex-1 md:flex-none">
               <StudentForm onSubmit={addStudent} />
             </div>
+            <Button variant="outline" onClick={() => setFirebaseOpen(true)} className="flex-1 md:flex-none">Configurer Firebase</Button>
             <Button
               variant="destructive"
               className="flex-1 md:flex-none"
@@ -71,6 +88,31 @@ export default function Dashboard() {
             </Button>
           </div>
         </div>
+
+        <Dialog open={firebaseOpen} onOpenChange={setFirebaseOpen as any}>
+          <DialogContent className="sm:max-w-[600px]">
+            <DialogHeader>
+              <DialogTitle>Configuration Firebase</DialogTitle>
+              <DialogDescription>Collez l'objet de configuration JSON fourni par Firebase.</DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <Textarea placeholder={sampleConfig} value={firebaseText} onChange={(e) => setFirebaseText(e.target.value)} className="h-[220px] font-mono text-sm" />
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setFirebaseOpen(false)}>Annuler</Button>
+              <Button onClick={() => {
+                try {
+                  const obj = JSON.parse(firebaseText);
+                  if (obj && obj.apiKey && obj.projectId) {
+                    localStorage.setItem("firebaseConfigJSON", JSON.stringify(obj));
+                    setFirebaseOpen(false);
+                    location.reload();
+                  }
+                } catch {}
+              }}>Enregistrer</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
         {/* Stats Overview (Optional simple stats) */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

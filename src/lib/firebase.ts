@@ -4,7 +4,18 @@ import { getFirestore, type Firestore } from "firebase/firestore";
 import { getAnalytics, isSupported } from "firebase/analytics";
 import type { Analytics } from "firebase/analytics";
 
-const firebaseConfig = {
+function loadRuntimeConfig() {
+  try {
+    const raw = typeof window !== "undefined" ? localStorage.getItem("firebaseConfigJSON") : null;
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && parsed.apiKey && parsed.projectId) return parsed;
+    }
+  } catch {}
+  return null;
+}
+
+const firebaseConfig = loadRuntimeConfig() || {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
   projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
@@ -17,18 +28,18 @@ const firebaseConfig = {
 let app: FirebaseApp | undefined;
 let auth: Auth | undefined;
 let db: Firestore | undefined;
-if (firebaseConfig.apiKey && firebaseConfig.projectId) {
-  app = initializeApp(firebaseConfig);
-  auth = getAuth(app);
-  db = getFirestore(app);
+if (firebaseConfig && (firebaseConfig as any).apiKey && (firebaseConfig as any).projectId) {
+  try {
+    app = initializeApp(firebaseConfig as any);
+    auth = getAuth(app);
+    db = getFirestore(app);
+  } catch {}
 }
 
 let analytics: Analytics | undefined;
 if (typeof window !== "undefined" && app) {
   isSupported()
-    .then((ok) => {
-      if (ok) analytics = getAnalytics(app);
-    })
+    .then((ok) => { if (ok) analytics = getAnalytics(app); })
     .catch(() => {});
 }
 
