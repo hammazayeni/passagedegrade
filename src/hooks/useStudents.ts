@@ -8,11 +8,13 @@ const STORAGE_KEY = "taekwondo-sbeitla-data";
 
 export function useStudents() {
   const [students, setStudents] = useState<Student[]>([]);
+  const [cloudConnected, setCloudConnected] = useState(false);
 
   useEffect(() => {
     if (db) {
       const q = query(collection(db, "students"), orderBy("order"));
       const unsub = onSnapshot(q, (snapshot) => {
+        setCloudConnected(true);
         const list: Student[] = snapshot.docs.map((d) => ({ id: d.id, ...(d.data() as any) }));
         setStudents(list);
         try { localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); } catch {}
@@ -32,6 +34,7 @@ export function useStudents() {
           } catch {}
         }
       }, () => {
+        setCloudConnected(false);
         try {
           const saved = localStorage.getItem(STORAGE_KEY);
           if (saved) {
@@ -42,6 +45,7 @@ export function useStudents() {
       });
       return () => unsub();
     } else {
+      setCloudConnected(false);
       const loadData = () => {
         const saved = localStorage.getItem(STORAGE_KEY);
         if (saved) {
@@ -130,6 +134,7 @@ export function useStudents() {
 
   return {
     students: [...students].sort((a, b) => a.order - b.order),
+    cloudConnected,
     addStudent,
     addMultipleStudents,
     updateStudent,

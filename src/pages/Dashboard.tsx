@@ -12,7 +12,7 @@ import { ArrowUp, ArrowDown, Trash2, Edit, ExternalLink, Check, X, Users, Trophy
  
 
 export default function Dashboard() {
-  const { students, addStudent, addMultipleStudents, updateStudent, deleteStudent, reorderStudents, setStatus } = useStudents();
+  const { students, cloudConnected, addStudent, addMultipleStudents, updateStudent, deleteStudent, reorderStudents, setStatus } = useStudents();
   const navigate = useNavigate();
  
 
@@ -57,6 +57,11 @@ export default function Dashboard() {
                 <ExternalLink size={18} /> Projection
               </Button>
             </Link>
+            <div className="flex items-center">
+              <span className={`px-2 py-1 rounded-full text-xs ${cloudConnected ? 'bg-green-100 text-green-700 border border-green-300' : 'bg-yellow-100 text-yellow-700 border border-yellow-300'}`}>
+                {cloudConnected ? 'Cloud Sync' : 'Local Only'}
+              </span>
+            </div>
             <ImportStudents onImport={addMultipleStudents} />
             <div className="flex-1 md:flex-none">
               <StudentForm onSubmit={addStudent} />

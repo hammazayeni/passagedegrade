@@ -10,7 +10,7 @@ import { CheckCircle, XCircle } from "lucide-react";
 // waadti logo removed from carousel
 
 export default function Projection() {
-  const { students } = useStudents();
+  const { students, cloudConnected } = useStudents();
   const [controlledId, setControlledId] = useState<string | null>(null);
   const navigate = useNavigate();
 
@@ -305,6 +305,9 @@ export default function Projection() {
           </div>
           
           <div className="flex items-center gap-4">
+            <span className={`px-2 py-1 rounded-full text-xs ${cloudConnected ? 'bg-green-100 text-green-700 border border-green-300' : 'bg-yellow-100 text-yellow-700 border border-yellow-300'}`}>
+              {cloudConnected ? 'Cloud Sync' : 'Local Only'}
+            </span>
             <button
               className="px-3 py-1 rounded-md border border-white/10 text-gray-400 hover:text-white hover:border-white/20 transition"
               onClick={() => {
