@@ -16,6 +16,21 @@ export function useStudents() {
         const list: Student[] = snapshot.docs.map((d) => ({ id: d.id, ...(d.data() as any) }));
         setStudents(list);
         try { localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); } catch {}
+        if (snapshot.size === 0) {
+          try {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+              const parsed: Student[] = JSON.parse(saved);
+              if (Array.isArray(parsed) && parsed.length > 0) {
+                const batch = writeBatch(db);
+                parsed.forEach((s) => {
+                  batch.set(doc(db, "students", s.id), s);
+                });
+                batch.commit().catch(() => {});
+              }
+            }
+          } catch {}
+        }
       });
       return () => unsub();
     } else {

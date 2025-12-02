@@ -18,7 +18,20 @@ export default function Projection() {
     if (db) {
       const unsub = onSnapshot(doc(db, "projection", "current"), (snap) => {
         const data = snap.data() as any;
-        setControlledId(data?.currentId || null);
+        let nextId = data?.currentId || null;
+        if (!snap.exists()) {
+          const fallback = students.find((s) => s.status === "PENDING") || students[0];
+          nextId = fallback?.id || null;
+          if (nextId) {
+            setDoc(doc(db, "projection", "current"), { currentId: nextId, ts: Date.now() }).catch(() => {});
+          }
+        }
+        setControlledId(nextId);
+        try {
+          const payload = { currentId: nextId, ts: Date.now() };
+          localStorage.setItem("projection-current-id", JSON.stringify(payload));
+          window.dispatchEvent(new Event("storage"));
+        } catch {}
       });
       return () => unsub();
     } else {
@@ -37,6 +50,17 @@ export default function Projection() {
       return () => window.removeEventListener("storage", read);
     }
   }, []);
+
+  useEffect(() => {
+    if (!db) return;
+    if (students.length === 0) return;
+    if (!controlledId || !students.find((s) => s.id === controlledId)) {
+      const fallback = students.find((s) => s.status === "PENDING") || students[0];
+      if (fallback) {
+        setProjectionCurrent(fallback.id);
+      }
+    }
+  }, [students, controlledId]);
   
   const currentStudent = (controlledId ? students.find(s => s.id === controlledId) : undefined) ||
     students.find(s => s.status === "PENDING") || students[students.length - 1];
@@ -56,11 +80,12 @@ export default function Projection() {
 
   const setProjectionCurrent = (id: string) => {
     const payload = { currentId: id, ts: Date.now() };
-    if (db) {
-      setDoc(doc(db, "projection", "current"), payload).catch(() => {});
-    } else {
+    try {
       localStorage.setItem("projection-current-id", JSON.stringify(payload));
       window.dispatchEvent(new Event("storage"));
+    } catch {}
+    if (db) {
+      setDoc(doc(db, "projection", "current"), payload).catch(() => {});
     }
   };
   

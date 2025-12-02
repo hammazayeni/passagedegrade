@@ -15,14 +15,24 @@ function loadRuntimeConfig() {
   return null;
 }
 
+const defaultConfig = {
+  apiKey: "AIzaSyCTf1Lj_Rklig_3eKUCTXJQty2i16rjKGk",
+  authDomain: "promotion--test.firebaseapp.com",
+  projectId: "promotion--test",
+  storageBucket: "promotion--test.firebasestorage.app",
+  messagingSenderId: "904598948378",
+  appId: "1:904598948378:web:661759bd8f8b858a24dfa3",
+  measurementId: "G-29GYQVBD8Q",
+};
+
 const firebaseConfig = loadRuntimeConfig() || {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
-  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || defaultConfig.apiKey,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || defaultConfig.authDomain,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || defaultConfig.projectId,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || defaultConfig.storageBucket,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || defaultConfig.messagingSenderId,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || defaultConfig.appId,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || defaultConfig.measurementId,
 };
 
 let app: FirebaseApp | undefined;
