@@ -105,7 +105,7 @@ export default function Projection() {
       <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-gray-800/20 via-black/60 to-black" />
 
       {/* Main Content Area - Adjusted padding to not overlap with footer */}
-      <div className="relative z-10 flex-1 flex flex-col items-center justify-center p-3 sm:p-4 pb-[calc(7rem+env(safe-area-inset-bottom))] md:pb-48">
+      <div className="relative z-10 flex-1 flex flex-col items-center justify-center p-3 sm:p-4 pb-24 md:pb-48">
         
         {/* Header */}
         <motion.div 
@@ -235,6 +235,21 @@ export default function Projection() {
                   Suivant
                 </button>
               </div>
+
+              {/* Mobile logo carousel below navigation buttons */}
+              <div className="md:hidden w-full overflow-hidden py-1.5 relative mt-3">
+                <div className="absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-black to-transparent z-10" />
+                <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-black to-transparent z-10" />
+                <motion.div 
+                  className="flex items-center gap-1.5 w-max will-change-transform"
+                  animate={{ x: [0, motionDistance] }}
+                  transition={{ repeat: Infinity, repeatType: "loop", repeatDelay: 0, duration: motionDuration, ease: "linear" }}
+                >
+                  {carouselLogosLoop.map((logo, index) => (
+                    <LogoItem key={index} src={logo} />
+                  ))}
+                </motion.div>
+              </div>
             </div>
             </motion.div>
           ) : null}
@@ -242,7 +257,7 @@ export default function Projection() {
       </div>
 
       {/* Footer Section - Fixed to bottom to ensure visibility */}
-      <div className="absolute bottom-0 left-0 right-0 z-50 bg-black/90 backdrop-blur-xl border-t border-white/10 shadow-[0_-10px_40px_rgba(0,0,0,0.8)]">
+      <div className="z-50 bg-black/90 backdrop-blur-xl border-t border-white/10 shadow-[0_-10px_40px_rgba(0,0,0,0.8)] md:absolute md:bottom-0 md:left-0 md:right-0">
         {/* Signature & Progress */}
         <div className="flex justify-between items-center px-4 md:px-8 py-2 border-t border-white/5 text-[10px] md:text-xs text-gray-500 font-mono bg-black">
           <div className="flex items-center gap-2">
@@ -275,12 +290,12 @@ export default function Projection() {
           </div>
         </div>
 
-        {/* Infinite Logo Carousel at very bottom */}
-        <div className="w-full overflow-hidden py-1.5 md:py-3 relative">
+        {/* Infinite Logo Carousel at very bottom (desktop only) */}
+        <div className="hidden md:block w-full overflow-hidden py-3 relative">
           <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-black to-transparent z-10" />
           <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-black to-transparent z-10" />
           <motion.div 
-            className="flex items-center gap-1.5 md:gap-3 w-max will-change-transform"
+            className="flex items-center gap-3 w-max will-change-transform"
             animate={{ x: [0, motionDistance] }}
             transition={{ 
               repeat: Infinity,
