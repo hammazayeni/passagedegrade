@@ -31,6 +31,14 @@ export function useStudents() {
             }
           } catch {}
         }
+      }, () => {
+        try {
+          const saved = localStorage.getItem(STORAGE_KEY);
+          if (saved) {
+            const parsed: Student[] = JSON.parse(saved);
+            setStudents(parsed);
+          }
+        } catch {}
       });
       return () => unsub();
     } else {
@@ -58,7 +66,7 @@ export function useStudents() {
 
   const addStudent = (student: Student) => {
     const nextOrder = students.length > 0 ? Math.max(...students.map(s => s.order)) + 1 : 1;
-    const prepared = { ...student, order: student.order ?? nextOrder } as Student;
+    const prepared = { ...student, order: nextOrder } as Student;
     const newStudents = [...students, prepared];
     saveStudents(newStudents);
     if (db) {
@@ -121,7 +129,7 @@ export function useStudents() {
   };
 
   return {
-    students: students.sort((a, b) => a.order - b.order),
+    students: [...students].sort((a, b) => a.order - b.order),
     addStudent,
     addMultipleStudents,
     updateStudent,
