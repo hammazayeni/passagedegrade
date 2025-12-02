@@ -15,40 +15,20 @@ export default function Projection() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (db) {
-      const unsub = onSnapshot(doc(db, "projection", "current"), (snap) => {
-        const data = snap.data() as any;
-        let nextId = data?.currentId || null;
-        if (!snap.exists()) {
-          const fallback = students.find((s) => s.status === "PENDING") || students[0];
-          nextId = fallback?.id || null;
-          if (nextId) {
-            setDoc(doc(db, "projection", "current"), { currentId: nextId, ts: Date.now() }).catch(() => {});
-          }
+    if (!db) return;
+    const unsub = onSnapshot(doc(db, "projection", "current"), (snap) => {
+      const data = snap.data() as any;
+      let nextId = data?.currentId || null;
+      if (!snap.exists()) {
+        const fallback = students.find((s) => s.status === "PENDING") || students[0];
+        nextId = fallback?.id || null;
+        if (nextId) {
+          setDoc(doc(db, "projection", "current"), { currentId: nextId, ts: Date.now() }).catch(() => {});
         }
-        setControlledId(nextId);
-        try {
-          const payload = { currentId: nextId, ts: Date.now() };
-          localStorage.setItem("projection-current-id", JSON.stringify(payload));
-          window.dispatchEvent(new Event("storage"));
-        } catch {}
-      });
-      return () => unsub();
-    } else {
-      const read = () => {
-        try {
-          const raw = localStorage.getItem("projection-current-id");
-          if (!raw) { setControlledId(null); return; }
-          const obj = JSON.parse(raw);
-          setControlledId(obj?.currentId || null);
-        } catch {
-          setControlledId(null);
-        }
-      };
-      read();
-      window.addEventListener("storage", read);
-      return () => window.removeEventListener("storage", read);
-    }
+      }
+      setControlledId(nextId);
+    });
+    return () => unsub();
   }, []);
 
   useEffect(() => {
@@ -80,10 +60,6 @@ export default function Projection() {
 
   const setProjectionCurrent = (id: string) => {
     const payload = { currentId: id, ts: Date.now() };
-    try {
-      localStorage.setItem("projection-current-id", JSON.stringify(payload));
-      window.dispatchEvent(new Event("storage"));
-    } catch {}
     if (db) {
       setDoc(doc(db, "projection", "current"), payload).catch(() => {});
     }
@@ -114,7 +90,7 @@ export default function Projection() {
   }
 
   return (
-    <div className="relative h-screen w-screen overflow-hidden bg-black text-white font-sans selection:bg-red-500 selection:text-white flex flex-col">
+    <div className="relative h-screen w-screen bg-black text-white font-sans selection:bg-red-500 selection:text-white flex flex-col md:overflow-hidden overflow-y-auto">
       {/* Background with Gradient and Texture */}
       <div 
         className="absolute inset-0 z-0 opacity-40"
@@ -129,7 +105,7 @@ export default function Projection() {
       <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-gray-800/20 via-black/60 to-black" />
 
       {/* Main Content Area - Adjusted padding to not overlap with footer */}
-      <div className="relative z-10 flex-1 flex flex-col items-center justify-center p-4 pb-40 md:pb-48">
+      <div className="relative z-10 flex-1 flex flex-col items-center justify-center p-3 sm:p-4 pb-[calc(7rem+env(safe-area-inset-bottom))] md:pb-48">
         
         {/* Header */}
         <motion.div 
@@ -137,7 +113,7 @@ export default function Projection() {
           animate={{ opacity: 1, y: 0 }}
           className="w-full text-center mb-8 md:mb-12"
         >
-          <h1 className="text-4xl md:text-7xl font-black tracking-tighter uppercase bg-gradient-to-b from-white to-gray-500 bg-clip-text text-transparent drop-shadow-2xl">
+          <h1 className="text-3xl sm:text-4xl md:text-7xl font-black tracking-tighter uppercase bg-gradient-to-b from-white to-gray-500 bg-clip-text text-transparent drop-shadow-2xl">
             Taekwondo Sbeitla
           </h1>
           <div className="h-1 w-24 md:w-32 mx-auto mt-4 bg-red-600 rounded-full shadow-[0_0_20px_rgba(220,38,38,0.8)]" />
@@ -160,7 +136,7 @@ export default function Projection() {
               {/* Image Section */}
               <div className="relative group flex-shrink-0">
                 <div className="absolute -inset-4 bg-gradient-to-r from-red-600 to-red-900 rounded-full opacity-30 blur-2xl group-hover:opacity-50 transition duration-1000 animate-pulse" />
-                <div className="relative w-48 h-48 md:w-80 md:h-80 rounded-full border-4 md:border-8 border-neutral-800 shadow-2xl overflow-hidden bg-neutral-900 ring-4 ring-white/10">
+                <div className="relative w-40 h-40 sm:w-48 sm:h-48 md:w-80 md:h-80 rounded-full border-2 sm:border-4 md:border-8 border-neutral-800 shadow-2xl overflow-hidden bg-neutral-900 ring-2 sm:ring-4 ring-white/10">
                   <img 
                     src={currentStudent.photoUrl} 
                     alt={currentStudent.fullName} 
@@ -203,15 +179,15 @@ export default function Projection() {
                     Candidat
                     <span className="h-px w-8 bg-red-500 md:hidden"></span>
                   </h2>
-                  <h3 className="text-3xl md:text-6xl font-black text-white tracking-tight leading-none drop-shadow-lg">
+                  <h3 className="text-2xl sm:text-3xl md:text-6xl font-black text-white tracking-tight leading-none drop-shadow-lg">
                     {currentStudent.fullName}
                   </h3>
                 </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                <div className="bg-neutral-900/50 border border-neutral-800 p-4 md:p-5 rounded-2xl backdrop-blur-sm hover:bg-neutral-900/70 transition-colors">
+                <div className="bg-neutral-900/50 border border-neutral-800 p-3 md:p-5 rounded-2xl backdrop-blur-sm hover:bg-neutral-900/70 transition-colors">
                   <p className="text-gray-400 text-xs uppercase tracking-wider mb-2 font-bold">Grade Actuel</p>
-                  <BeltBadge belt={currentStudent.currentBelt} size="lg" className="text-lg md:text-xl py-3 px-4 w-full shadow-lg" />
+                  <BeltBadge belt={currentStudent.currentBelt} size="md" className="md:text-xl md:py-3 md:px-4 w-full shadow-lg" />
                 </div>
 
                   <div className="relative bg-gradient-to-br from-neutral-900/80 to-red-900/20 border border-red-900/30 p-4 md:p-5 rounded-2xl backdrop-blur-sm overflow-hidden hover:border-red-500/50 transition-colors">
@@ -221,23 +197,23 @@ export default function Projection() {
                       </svg>
                     </div>
                   <p className="text-red-400 text-xs uppercase tracking-wider mb-2 font-black">Test Pour Le Grade</p>
-                  <BeltBadge belt={currentStudent.nextBelt} size="lg" className="text-xl md:text-2xl py-3 px-4 w-full scale-105 origin-left shadow-xl ring-2 ring-red-500/20" />
+                  <BeltBadge belt={currentStudent.nextBelt} size="md" className="md:text-2xl md:py-3 md:px-4 w-full md:scale-105 origin-left shadow-xl ring-2 ring-red-500/20" />
                 </div>
               </div>
 
               <div className="mt-4 md:mt-6 grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-6">
-                <div className="bg-neutral-900/50 border border-neutral-800 p-4 rounded-2xl text-center md:text-left">
+                <div className="bg-neutral-900/50 border border-neutral-800 p-3 md:p-4 rounded-2xl text-center md:text-left">
                   <p className="text-gray-400 text-xs uppercase tracking-wider mb-2 font-bold">Ordre</p>
                   <p className="text-white text-sm md:text-base">Position: {currentIndex + 1} / {students.length}</p>
                   <p className="text-white text-sm md:text-base">Identifiant: #{currentStudent.order.toString().padStart(3, '0')}</p>
                 </div>
-                <div className="bg-neutral-900/50 border border-neutral-800 p-4 rounded-2xl text-center md:text-left">
+                <div className="bg-neutral-900/50 border border-neutral-800 p-3 md:p-4 rounded-2xl text-center md:text-left">
                   <p className="text-gray-400 text-xs uppercase tracking-wider mb-2 font-bold">Résultat</p>
                   <p className="text-white text-sm md:text-base">
                     {currentStudent.status === 'PENDING' ? 'En attente' : currentStudent.status === 'APPROVED' ? 'Admis' : 'Refusé'}
                   </p>
                 </div>
-                <div className="bg-neutral-900/50 border border-neutral-800 p-4 rounded-2xl text-center md:text-left">
+                <div className="bg-neutral-900/50 border border-neutral-800 p-3 md:p-4 rounded-2xl text-center md:text-left">
                   <p className="text-gray-400 text-xs uppercase tracking-wider mb-2 font-bold">Prochain</p>
                   <p className="text-white text-sm md:text-base">{nextStudent ? nextStudent.fullName : 'Aucun'}</p>
                 </div>
@@ -245,14 +221,14 @@ export default function Projection() {
 
               <div className="mt-4 flex items-center justify-center md:justify-start gap-3">
                 <button
-                  className="px-4 py-2 rounded-md border border-white/10 text-gray-300 hover:text-white hover:border-white/20 transition disabled:opacity-50 disabled:pointer-events-none"
+                  className="px-3 py-2 rounded-md border border-white/10 text-gray-300 hover:text-white hover:border-white/20 transition disabled:opacity-50 disabled:pointer-events-none"
                   onClick={() => previousStudent && setProjectionCurrent(previousStudent.id)}
                   disabled={!previousStudent}
                 >
                   Précédent
                 </button>
                 <button
-                  className="px-4 py-2 rounded-md border border-white/10 text-gray-300 hover:text-white hover:border-white/20 transition disabled:opacity-50 disabled:pointer-events-none"
+                  className="px-3 py-2 rounded-md border border-white/10 text-gray-300 hover:text-white hover:border-white/20 transition disabled:opacity-50 disabled:pointer-events-none"
                   onClick={() => nextStudent && setProjectionCurrent(nextStudent.id)}
                   disabled={!nextStudent}
                 >
@@ -269,12 +245,12 @@ export default function Projection() {
       <div className="absolute bottom-0 left-0 right-0 z-50 bg-black/90 backdrop-blur-xl border-t border-white/10 shadow-[0_-10px_40px_rgba(0,0,0,0.8)]">
         
         {/* Infinite Logo Carousel */}
-        <div className="w-full overflow-hidden py-2 md:py-3 relative">
+        <div className="w-full overflow-hidden py-1.5 md:py-3 relative">
           <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-black to-transparent z-10" />
           <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-black to-transparent z-10" />
           
           <motion.div 
-            className="flex items-center gap-2 md:gap-3 w-max will-change-transform"
+            className="flex items-center gap-1.5 md:gap-3 w-max will-change-transform"
             animate={{ x: [0, motionDistance] }}
             transition={{ 
               repeat: Infinity,
@@ -305,7 +281,7 @@ export default function Projection() {
           </div>
           
           <div className="flex items-center gap-4">
-            <span className={`px-2 py-1 rounded-full text-xs ${cloudConnected ? 'bg-green-100 text-green-700 border border-green-300' : 'bg-yellow-100 text-yellow-700 border border-yellow-300'}`}>
+            <span className={`px-2 py-1 rounded-full text-[10px] md:text-xs ${cloudConnected ? 'bg-green-100 text-green-700 border border-green-300' : 'bg-yellow-100 text-yellow-700 border border-yellow-300'}`}>
               {cloudConnected ? 'Cloud Sync' : 'Local Only'}
             </span>
             <button
@@ -317,7 +293,7 @@ export default function Projection() {
             >
               Déconnexion
             </button>
-            <div className="tracking-widest uppercase text-gray-400 font-bold">
+            <div className="tracking-widest uppercase text-gray-400 font-bold text-[10px] md:text-xs">
               Créé par Maître <span className="text-red-600">Ali ZAYANI</span>
             </div>
           </div>
@@ -351,7 +327,7 @@ function LogoItem({ src }: { src: string }) {
   const isSufetula = lower.includes("sufetula");
   const isLarge = isFederation || isWaadti || isSufetula;
   return (
-    <div className={`${isLarge ? 'h-12 w-24 md:h-16 md:w-32' : 'h-10 w-20 md:h-12 md:w-24'} flex-shrink-0 grayscale hover:grayscale-0 transition-all duration-300 opacity-80 hover:opacity-100 flex items-center justify-center`}
+    <div className={`${isLarge ? 'h-10 w-20 md:h-16 md:w-32' : 'h-8 w-16 md:h-12 md:w-24'} flex-shrink-0 grayscale hover:grayscale-0 transition-all duration-300 opacity-80 hover:opacity-100 flex items-center justify-center`}
     >
       {failed ? (
         lower.includes("waadti") ? (
@@ -365,7 +341,7 @@ function LogoItem({ src }: { src: string }) {
         <img 
           src={cacheBustedSrc} 
           alt="Partner Logo" 
-          className={`object-contain ${isDiamond ? 'max-h-[70%] max-w-[70%]' : 'max-h-full max-w-full'} ${isLarge ? 'scale-110' : ''}`} 
+          className={`object-contain ${isDiamond ? 'max-h-[70%] max-w-[70%]' : 'max-h-full max-w-full'} ${isLarge ? 'scale-105' : ''}`} 
           onError={() => {
             if (!encodedTried && src.includes(' ')) {
               setEncodedTried(true);

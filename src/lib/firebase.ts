@@ -1,6 +1,6 @@
 import { initializeApp, type FirebaseApp } from "firebase/app";
 import { getAuth, type Auth, signInAnonymously, onAuthStateChanged } from "firebase/auth";
-import { getFirestore, type Firestore } from "firebase/firestore";
+import { getFirestore, type Firestore, enableIndexedDbPersistence, initializeFirestore } from "firebase/firestore";
 import { getAnalytics, isSupported } from "firebase/analytics";
 import type { Analytics } from "firebase/analytics";
 
@@ -31,7 +31,8 @@ if (firebaseConfig && (firebaseConfig as any).apiKey && (firebaseConfig as any).
   try {
     app = initializeApp(firebaseConfig as any);
     auth = getAuth(app);
-    db = getFirestore(app);
+    db = initializeFirestore(app, { experimentalAutoDetectLongPolling: true });
+    try { enableIndexedDbPersistence(db); } catch {}
   } catch {}
 }
 

@@ -18,10 +18,6 @@ export default function Dashboard() {
 
   const setProjectionCurrent = (id: string) => {
     const payload = { currentId: id, ts: Date.now() };
-    try {
-      localStorage.setItem("projection-current-id", JSON.stringify(payload));
-      window.dispatchEvent(new Event("storage"));
-    } catch {}
     if (db) {
       setDoc(doc(db, "projection", "current"), payload).catch(() => {});
     }
