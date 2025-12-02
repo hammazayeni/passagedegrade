@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { Student, TestStatus } from "@/types";
 import { toast } from "sonner";
+import { db } from "@/lib/firebase";
+import { collection, doc, onSnapshot, query, orderBy, setDoc, updateDoc, deleteDoc, writeBatch } from "firebase/firestore";
 
 const STORAGE_KEY = "taekwondo-sbeitla-data";
 
@@ -8,20 +10,29 @@ export function useStudents() {
   const [students, setStudents] = useState<Student[]>([]);
 
   useEffect(() => {
-    const loadData = () => {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        try {
-          setStudents(JSON.parse(saved));
-        } catch (e) {
-          console.error("Failed to parse students", e);
+    if (db) {
+      const q = query(collection(db, "students"), orderBy("order"));
+      const unsub = onSnapshot(q, (snapshot) => {
+        const list: Student[] = snapshot.docs.map((d) => ({ id: d.id, ...(d.data() as any) }));
+        setStudents(list);
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); } catch {}
+      });
+      return () => unsub();
+    } else {
+      const loadData = () => {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          try {
+            setStudents(JSON.parse(saved));
+          } catch (e) {
+            console.error("Failed to parse students", e);
+          }
         }
-      }
-    };
-    loadData();
-    
-    window.addEventListener("storage", loadData);
-    return () => window.removeEventListener("storage", loadData);
+      };
+      loadData();
+      window.addEventListener("storage", loadData);
+      return () => window.removeEventListener("storage", loadData);
+    }
   }, []);
 
   const saveStudents = (newStudents: Student[]) => {
@@ -31,8 +42,12 @@ export function useStudents() {
   };
 
   const addStudent = (student: Student) => {
-    const newStudents = [...students, student];
-    saveStudents(newStudents);
+    if (db) {
+      setDoc(doc(db, "students", student.id), student).catch(() => {});
+    } else {
+      const newStudents = [...students, student];
+      saveStudents(newStudents);
+    }
     toast.success("Élève ajouté avec succès");
   };
   
@@ -45,26 +60,48 @@ export function useStudents() {
       order: startOrder + index + 1
     }));
     
-    const updatedList = [...students, ...preparedStudents];
-    saveStudents(updatedList);
+    if (db) {
+      const batch = writeBatch(db);
+      preparedStudents.forEach((s) => {
+        batch.set(doc(db, "students", s.id), s);
+      });
+      batch.commit().catch(() => {});
+    } else {
+      const updatedList = [...students, ...preparedStudents];
+      saveStudents(updatedList);
+    }
     // Toast handled in component
   };
 
   const updateStudent = (id: string, updates: Partial<Student>) => {
-    const newStudents = students.map((s) => (s.id === id ? { ...s, ...updates } : s));
-    saveStudents(newStudents);
+    if (db) {
+      updateDoc(doc(db, "students", id), updates as any).catch(() => {});
+    } else {
+      const newStudents = students.map((s) => (s.id === id ? { ...s, ...updates } : s));
+      saveStudents(newStudents);
+    }
     toast.success("Élève mis à jour");
   };
 
   const deleteStudent = (id: string) => {
-    const newStudents = students.filter((s) => s.id !== id);
-    saveStudents(newStudents);
+    if (db) {
+      deleteDoc(doc(db, "students", id)).catch(() => {});
+    } else {
+      const newStudents = students.filter((s) => s.id !== id);
+      saveStudents(newStudents);
+    }
     toast.success("Élève supprimé");
   };
 
   const reorderStudents = (newOrder: Student[]) => {
     const reordered = newOrder.map((s, index) => ({ ...s, order: index + 1 }));
-    saveStudents(reordered);
+    if (db) {
+      const batch = writeBatch(db);
+      reordered.forEach((s) => batch.update(doc(db, "students", s.id), { order: s.order }));
+      batch.commit().catch(() => {});
+    } else {
+      saveStudents(reordered);
+    }
   };
 
   const setStatus = (id: string, status: TestStatus) => {

@@ -3,6 +3,8 @@ import { BeltBadge } from "@/components/BeltBadge";
 import { motion, AnimatePresence } from "framer-motion";
 import { useMemo, useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { db } from "@/lib/firebase";
+import { doc, onSnapshot, setDoc } from "firebase/firestore";
 import { CheckCircle, XCircle } from "lucide-react";
 
 // waadti logo removed from carousel
@@ -13,19 +15,27 @@ export default function Projection() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const read = () => {
-      try {
-        const raw = localStorage.getItem("projection-current-id");
-        if (!raw) { setControlledId(null); return; }
-        const obj = JSON.parse(raw);
-        setControlledId(obj?.currentId || null);
-      } catch {
-        setControlledId(null);
-      }
-    };
-    read();
-    window.addEventListener("storage", read);
-    return () => window.removeEventListener("storage", read);
+    if (db) {
+      const unsub = onSnapshot(doc(db, "projection", "current"), (snap) => {
+        const data = snap.data() as any;
+        setControlledId(data?.currentId || null);
+      });
+      return () => unsub();
+    } else {
+      const read = () => {
+        try {
+          const raw = localStorage.getItem("projection-current-id");
+          if (!raw) { setControlledId(null); return; }
+          const obj = JSON.parse(raw);
+          setControlledId(obj?.currentId || null);
+        } catch {
+          setControlledId(null);
+        }
+      };
+      read();
+      window.addEventListener("storage", read);
+      return () => window.removeEventListener("storage", read);
+    }
   }, []);
   
   const currentStudent = (controlledId ? students.find(s => s.id === controlledId) : undefined) ||
@@ -46,8 +56,12 @@ export default function Projection() {
 
   const setProjectionCurrent = (id: string) => {
     const payload = { currentId: id, ts: Date.now() };
-    localStorage.setItem("projection-current-id", JSON.stringify(payload));
-    window.dispatchEvent(new Event("storage"));
+    if (db) {
+      setDoc(doc(db, "projection", "current"), payload).catch(() => {});
+    } else {
+      localStorage.setItem("projection-current-id", JSON.stringify(payload));
+      window.dispatchEvent(new Event("storage"));
+    }
   };
   
   const BASE = import.meta.env.BASE_URL || "/";

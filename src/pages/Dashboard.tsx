@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Link, useNavigate } from "react-router-dom";
+import { db } from "@/lib/firebase";
+import { doc, setDoc } from "firebase/firestore";
 import { ArrowUp, ArrowDown, Trash2, Edit, ExternalLink, Check, X, Users, Trophy, Eye } from "lucide-react";
 
 export default function Dashboard() {
@@ -14,8 +16,12 @@ export default function Dashboard() {
 
   const setProjectionCurrent = (id: string) => {
     const payload = { currentId: id, ts: Date.now() };
-    localStorage.setItem("projection-current-id", JSON.stringify(payload));
-    window.dispatchEvent(new Event("storage"));
+    if (db) {
+      setDoc(doc(db, "projection", "current"), payload).catch(() => {});
+    } else {
+      localStorage.setItem("projection-current-id", JSON.stringify(payload));
+      window.dispatchEvent(new Event("storage"));
+    }
   };
 
   const moveStudent = (index: number, direction: "up" | "down") => {
