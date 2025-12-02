@@ -67,13 +67,13 @@ export default function Projection() {
   
   const BASE = import.meta.env.BASE_URL || "/";
   const LOGOS = [
-    `${BASE}assets/logos/TAEKWONDO_SBEITLA_-removebg-preview.png`,
-    `${BASE}assets/logos/kukkiwon.png`,
-    `${BASE}assets/logos/Elite Sportive - 1.png`,
-    `${BASE}assets/logos/img_4026_nobg_new.png`,
-    `${BASE}assets/logos/WAADTI.png`,
-    `${BASE}assets/logos/federation-tunisienne-de-taekwondo.png`,
-    `${BASE}assets/logos/diamond-gym.png`,
+    encodeURI(`${BASE}assets/logos/TAEKWONDO_SBEITLA_-removebg-preview.png`),
+    encodeURI(`${BASE}assets/logos/kukkiwon.png`),
+    encodeURI(`${BASE}assets/logos/Elite Sportive - 1.png`),
+    encodeURI(`${BASE}assets/logos/img_4026_nobg_new.png`),
+    encodeURI(`${BASE}assets/logos/WAADTI.png`),
+    encodeURI(`${BASE}assets/logos/federation-tunisienne-de-taekwondo.png`),
+    encodeURI(`${BASE}assets/logos/diamond-gym.png`),
   ];
 
   const baseLogos = Array(6).fill(0).flatMap(() => LOGOS);
@@ -354,6 +354,7 @@ function LogoItem({ src }: { src: string }) {
           src={cacheBustedSrc} 
           alt="Partner Logo" 
           className={`object-contain ${isDiamond ? 'max-h-[70%] max-w-[70%]' : 'max-h-full max-w-full'} ${isLarge ? 'scale-105' : ''}`} 
+          crossOrigin="anonymous"
           onError={() => {
             if (!encodedTried && src.includes(' ')) {
               setEncodedTried(true);

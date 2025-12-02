@@ -45,13 +45,13 @@ export default function Login() {
 
   const BASE = import.meta.env.BASE_URL || "/";
   const LOGOS = [
-    `${BASE}assets/logos/TAEKWONDO_SBEITLA_-removebg-preview.png`,
-    `${BASE}assets/logos/kukkiwon.png`,
-    `${BASE}assets/logos/Elite Sportive - 1.png`,
-    `${BASE}assets/logos/img_4026_nobg_new.png`,
-    `${BASE}assets/logos/WAADTI.png`,
-    `${BASE}assets/logos/federation-tunisienne-de-taekwondo.png`,
-    `${BASE}assets/logos/diamond-gym.png`,
+    encodeURI(`${BASE}assets/logos/TAEKWONDO_SBEITLA_-removebg-preview.png`),
+    encodeURI(`${BASE}assets/logos/kukkiwon.png`),
+    encodeURI(`${BASE}assets/logos/Elite Sportive - 1.png`),
+    encodeURI(`${BASE}assets/logos/img_4026_nobg_new.png`),
+    encodeURI(`${BASE}assets/logos/WAADTI.png`),
+    encodeURI(`${BASE}assets/logos/federation-tunisienne-de-taekwondo.png`),
+    encodeURI(`${BASE}assets/logos/diamond-gym.png`),
   ];
   const carouselLogos = Array(10).fill(null).flatMap(() => LOGOS);
   const motionDistance = -Math.max(800, Math.floor((carouselLogos.length * 120) / 2));

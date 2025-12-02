@@ -24,17 +24,17 @@ export function StudentForm({ onSubmit, trigger, initialData }: StudentFormProps
   const [nextBelt, setNextBelt] = useState<BeltLevel>(initialData?.nextBelt || "DEMI-JAUNE");
   const BASE = import.meta.env.BASE_URL || "/";
   const [photoUrl, setPhotoUrl] = useState(initialData?.photoUrl || `${BASE}assets/default-avatar_variant_2.png`);
+  const [processingImage, setProcessingImage] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (processingImage) return;
     const id = initialData?.id || uuidv4();
     let finalPhotoUrl = photoUrl;
     if (finalPhotoUrl && finalPhotoUrl.startsWith("data:")) {
       if (storage) {
         try {
-          const mime = finalPhotoUrl.substring(5, finalPhotoUrl.indexOf(";"));
-          const ext = mime.includes("png") ? "png" : mime.includes("jpeg") || mime.includes("jpg") ? "jpg" : "jpg";
-          const objectRef = ref(storage, `students/${id}.${ext}`);
+          const objectRef = ref(storage, `students/${id}.jpg`);
           await uploadString(objectRef, finalPhotoUrl, "data_url");
           finalPhotoUrl = await getDownloadURL(objectRef);
         } catch {
@@ -63,13 +63,39 @@ export function StudentForm({ onSubmit, trigger, initialData }: StudentFormProps
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPhotoUrl(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
+    if (!file) return;
+    setProcessingImage(true);
+    const readAsDataURL = (f: File) => new Promise<string>((resolve, reject) => { const r = new FileReader(); r.onload = () => resolve(r.result as string); r.onerror = reject; r.readAsDataURL(f); });
+    const loadImage = (src: string) => new Promise<HTMLImageElement>((resolve, reject) => { const img = new Image(); img.onload = () => resolve(img); img.onerror = reject; img.src = src; });
+    const dataURLSize = (d: string) => { const base64 = d.split(',')[1] || ''; return Math.ceil((base64.length * 3) / 4); };
+    const compress = async (f: File, maxBytes: number) => {
+      const original = await readAsDataURL(f);
+      let img = await loadImage(original);
+      let width = Math.min(img.width, 1024);
+      let height = Math.round(img.height * (width / img.width));
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      let best = original;
+      for (let i = 0; i < 6; i++) {
+        canvas.width = width;
+        canvas.height = height;
+        ctx?.clearRect(0, 0, width, height);
+        ctx?.drawImage(img, 0, 0, width, height);
+        for (let q = 0.92; q >= 0.4; q -= 0.12) {
+          const out = canvas.toDataURL('image/jpeg', q);
+          best = out;
+          if (dataURLSize(out) <= maxBytes) return out;
+        }
+        width = Math.round(width * 0.85);
+        height = Math.round(height * 0.85);
+        if (width < 300 || height < 300) break;
+      }
+      return best;
+    };
+    compress(file, 500 * 1024)
+      .then((d) => setPhotoUrl(d))
+      .catch(() => setPhotoUrl(`${BASE}assets/default-avatar_variant_2.png`))
+      .finally(() => setProcessingImage(false));
   };
 
   return (
@@ -145,7 +171,7 @@ export function StudentForm({ onSubmit, trigger, initialData }: StudentFormProps
             </div>
           </div>
 
-          <Button type="submit" className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-6 text-lg shadow-md transition-all">
+          <Button type="submit" disabled={processingImage} className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-6 text-lg shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed">
             <Save className="mr-2 h-5 w-5" /> {initialData ? "Enregistrer les Modifications" : "Enregistrer l'Élève"}
           </Button>
         </form>
