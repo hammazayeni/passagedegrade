@@ -243,29 +243,6 @@ export default function Projection() {
 
       {/* Footer Section - Fixed to bottom to ensure visibility */}
       <div className="absolute bottom-0 left-0 right-0 z-50 bg-black/90 backdrop-blur-xl border-t border-white/10 shadow-[0_-10px_40px_rgba(0,0,0,0.8)]">
-        
-        {/* Infinite Logo Carousel */}
-        <div className="w-full overflow-hidden py-1.5 md:py-3 relative">
-          <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-black to-transparent z-10" />
-          <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-black to-transparent z-10" />
-          
-          <motion.div 
-            className="flex items-center gap-1.5 md:gap-3 w-max will-change-transform"
-            animate={{ x: [0, motionDistance] }}
-            transition={{ 
-              repeat: Infinity,
-              repeatType: "loop",
-              repeatDelay: 0,
-              duration: motionDuration, 
-              ease: "linear" 
-            }}
-          >
-            {carouselLogosLoop.map((logo, index) => (
-              <LogoItem key={index} src={logo} />
-            ))}
-          </motion.div>
-        </div>
-
         {/* Signature & Progress */}
         <div className="flex justify-between items-center px-4 md:px-8 py-2 border-t border-white/5 text-[10px] md:text-xs text-gray-500 font-mono bg-black">
           <div className="flex items-center gap-2">
@@ -279,7 +256,6 @@ export default function Projection() {
                ))}
             </div>
           </div>
-          
           <div className="flex items-center gap-4">
             <span className={`px-2 py-1 rounded-full text-[10px] md:text-xs ${cloudConnected ? 'bg-green-100 text-green-700 border border-green-300' : 'bg-yellow-100 text-yellow-700 border border-yellow-300'}`}>
               {cloudConnected ? 'Cloud Sync' : 'Local Only'}
@@ -297,6 +273,27 @@ export default function Projection() {
               Créé par Maître <span className="text-red-600">Ali ZAYANI</span>
             </div>
           </div>
+        </div>
+
+        {/* Infinite Logo Carousel at very bottom */}
+        <div className="w-full overflow-hidden py-1.5 md:py-3 relative">
+          <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-black to-transparent z-10" />
+          <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-black to-transparent z-10" />
+          <motion.div 
+            className="flex items-center gap-1.5 md:gap-3 w-max will-change-transform"
+            animate={{ x: [0, motionDistance] }}
+            transition={{ 
+              repeat: Infinity,
+              repeatType: "loop",
+              repeatDelay: 0,
+              duration: motionDuration, 
+              ease: "linear" 
+            }}
+          >
+            {carouselLogosLoop.map((logo, index) => (
+              <LogoItem key={index} src={logo} />
+            ))}
+          </motion.div>
         </div>
       </div>
     </div>

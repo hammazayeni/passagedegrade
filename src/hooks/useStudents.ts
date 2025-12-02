@@ -13,10 +13,10 @@ export function useStudents() {
   useEffect(() => {
     if (!db) { setCloudConnected(false); return; }
     const q = query(collection(db, "students"), orderBy("order"));
-    const unsub = onSnapshot(q, (snapshot) => {
+    const unsub = onSnapshot(q, { includeMetadataChanges: true }, (snapshot) => {
       const list: Student[] = snapshot.docs.map((d) => ({ id: d.id, ...(d.data() as any) }));
       setStudents(list);
-      setCloudConnected(!snapshot.metadata.fromCache);
+      setCloudConnected(true);
     }, () => {
       setCloudConnected(false);
     });
