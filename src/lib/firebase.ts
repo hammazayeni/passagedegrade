@@ -1,59 +1,42 @@
-import { initializeApp, type FirebaseApp } from "firebase/app";
-import { getAuth, type Auth, signInAnonymously, onAuthStateChanged } from "firebase/auth";
-import { getFirestore, type Firestore, enableIndexedDbPersistence, initializeFirestore } from "firebase/firestore";
-import { getStorage, type FirebaseStorage } from "firebase/storage";
-import { getAnalytics, isSupported } from "firebase/analytics";
-import type { Analytics } from "firebase/analytics";
+import { initializeApp, getApps } from 'firebase/app';
+import { getFirestore } from 'firebase/firestore';
+import { getStorage } from 'firebase/storage';
+import { getAuth, signInAnonymously } from 'firebase/auth';
 
-const defaultConfig = {
-  apiKey: "AIzaSyCTf1Lj_Rklig_3eKUCTXJQty2i16rjKGk",
-  authDomain: "promotion--test.firebaseapp.com",
-  projectId: "promotion--test",
-  storageBucket: "promotion--test.appspot.com",
-  messagingSenderId: "904598948378",
-  appId: "1:904598948378:web:661759bd8f8b858a24dfa3",
-  measurementId: "G-29GYQVBD8Q",
-};
+export function getFirebaseApp() {
+  const cfg = {
+    apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+    storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+    appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  } as const;
 
-const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || defaultConfig.apiKey,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || defaultConfig.authDomain,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || defaultConfig.projectId,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || defaultConfig.storageBucket,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || defaultConfig.messagingSenderId,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || defaultConfig.appId,
-  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || defaultConfig.measurementId,
-};
-
-let app: FirebaseApp | undefined;
-let auth: Auth | undefined;
-let db: Firestore | undefined;
-let storage: FirebaseStorage | undefined;
-if (firebaseConfig && (firebaseConfig as any).apiKey && (firebaseConfig as any).projectId) {
-  try {
-    app = initializeApp(firebaseConfig as any);
-    auth = getAuth(app);
-    db = initializeFirestore(app, { experimentalAutoDetectLongPolling: true });
-    storage = getStorage(app);
-    try { enableIndexedDbPersistence(db); } catch {}
-  } catch {}
+  const hasAll = Object.values(cfg).every(Boolean);
+  if (!hasAll) return null;
+  return getApps().length ? getApps()[0] : initializeApp(cfg);
 }
 
-let analytics: Analytics | undefined;
-if (typeof window !== "undefined" && app) {
-  isSupported()
-    .then((ok) => { if (ok) analytics = getAnalytics(app); })
-    .catch(() => {});
-  if (auth) {
-    signInAnonymously(auth).catch(() => {});
-    onAuthStateChanged(auth, (user) => {
-      if (!user) {
-        setTimeout(() => {
-          signInAnonymously(auth as Auth).catch(() => {});
-        }, 1500);
-      }
-    });
+export function getDb() {
+  const app = getFirebaseApp();
+  return app ? getFirestore(app) : null;
+}
+
+export function getBucket() {
+  const app = getFirebaseApp();
+  return app ? getStorage(app) : null;
+}
+
+export async function ensureAuth() {
+  const app = getFirebaseApp();
+  if (!app) return false;
+  const auth = getAuth(app);
+  if (auth.currentUser) return true;
+  try {
+    await signInAnonymously(auth);
+    return true;
+  } catch {
+    return false;
   }
 }
-
-export { app, auth, db, storage, analytics };

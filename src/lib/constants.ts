@@ -31,3 +31,13 @@ export const BELT_COLORS: Record<BeltLevel, { bg: string; text: string; border: 
   "2EME DAN": { bg: "bg-black", text: "text-white", border: "border-gray-800" },
   "3EME DAN": { bg: "bg-black", text: "text-white", border: "border-gray-800" },
 };
+
+export const LOGOS = [
+  "/assets/logos/TAEKWONDO_SBEITLA_-removebg-preview.png",
+  "/assets/logos/kukkiwon.png",
+  "/assets/logos/Elite Sportive - 1.png",
+  "/assets/logos/img_4026_nobg_new.png",
+  "/assets/logos/WAADTI.png",
+  "/assets/logos/diamond-gym.png",
+  "/assets/logos/federation-tunisienne-de-taekwondo.png",
+];

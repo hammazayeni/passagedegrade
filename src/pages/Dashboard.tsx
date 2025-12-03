@@ -6,22 +6,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Link, useNavigate } from "react-router-dom";
-import { db } from "@/lib/firebase";
-import { doc, setDoc } from "firebase/firestore";
 import { ArrowUp, ArrowDown, Trash2, Edit, ExternalLink, Check, X, Users, Trophy, Eye } from "lucide-react";
- 
+import { ImageFromStore } from "@/components/ImageFromStore";
+import { deleteImageForStudent } from "@/lib/imageStore";
+import { logout } from "@/lib/auth";
 
 export default function Dashboard() {
-  const { students, cloudConnected, addStudent, addMultipleStudents, updateStudent, deleteStudent, reorderStudents, setStatus } = useStudents();
   const navigate = useNavigate();
- 
-
-  const setProjectionCurrent = (id: string) => {
-    const payload = { currentId: id, ts: Date.now() };
-    if (db) {
-      setDoc(doc(db, "projection", "current"), payload).catch(() => {});
-    }
-  };
+  const { students, addStudent, addMultipleStudents, updateStudent, deleteStudent, reorderStudents, setStatus, syncStatus, setCurrent } = useStudents();
 
   const moveStudent = (index: number, direction: "up" | "down") => {
     if (direction === "up" && index === 0) return;
@@ -39,12 +31,15 @@ export default function Dashboard() {
         {/* Header Section */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
           <div className="flex items-center gap-4">
-            {(() => { const BASE = import.meta.env.BASE_URL || '/'; return (
-              <img src={`${BASE}assets/logos/kukkiwon.png`} alt="Site Logo" className="h-10 md:h-12 w-auto object-contain" />
-            ); })()}
+            <img
+              src="/assets/logos/kukkiwon.png"
+              alt="Logo"
+              className="w-12 h-12 rounded-xl shadow-lg object-contain bg-white"
+            />
             <div>
               <h1 className="text-3xl font-black text-gray-900 tracking-tight">Taekwondo Sbeitla</h1>
               <p className="text-gray-500 font-medium">Tableau de Bord des Examens de Passage</p>
+              <span className={`mt-1 inline-block text-xs px-2 py-0.5 rounded-full ${syncStatus === 'online' ? 'bg-green-100 text-green-700' : syncStatus === 'connecting' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}`}>Cloud Sync: {syncStatus}</span>
             </div>
           </div>
           <div className="flex flex-wrap gap-3 w-full md:w-auto">
@@ -53,31 +48,22 @@ export default function Dashboard() {
                 <ExternalLink size={18} /> Projection
               </Button>
             </Link>
-            <div className="flex items-center">
-              <span className={`px-2 py-1 rounded-full text-xs ${cloudConnected ? 'bg-green-100 text-green-700 border border-green-300' : 'bg-yellow-100 text-yellow-700 border border-yellow-300'}`}>
-                {cloudConnected ? 'Cloud Sync' : 'Local Only'}
-              </span>
-            </div>
             <ImportStudents onImport={addMultipleStudents} />
             <div className="flex-1 md:flex-none">
               <StudentForm onSubmit={addStudent} />
             </div>
-            
             <Button
               variant="destructive"
-              className="flex-1 md:flex-none"
+              className="md:flex-none"
               onClick={() => {
-                localStorage.removeItem("dashboardAuth");
-                localStorage.removeItem("dashboardUser");
-                navigate("/login", { replace: true });
+                logout();
+                navigate("/");
               }}
             >
               Déconnexion
             </Button>
           </div>
         </div>
-
-        
 
         {/* Stats Overview (Optional simple stats) */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -150,7 +136,7 @@ export default function Dashboard() {
                       <TableCell>
                         <div className="flex items-center gap-4">
                           <div className="relative">
-                            <img 
+                            <ImageFromStore 
                               src={student.photoUrl} 
                               alt={student.fullName} 
                               className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm group-hover:scale-110 transition-transform duration-300"
@@ -201,15 +187,6 @@ export default function Dashboard() {
                           <Button 
                             variant="ghost" 
                             size="icon" 
-                            className="h-8 w-8 hover:bg-green-50 hover:text-green-600 rounded-full"
-                            onClick={() => setProjectionCurrent(student.id)}
-                            title="Afficher sur Projection"
-                          >
-                            <Eye size={16} />
-                          </Button>
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
                             className="h-8 w-8 hover:bg-gray-200 rounded-full"
                             onClick={() => moveStudent(index, "up")}
                             disabled={index === 0}
@@ -225,6 +202,15 @@ export default function Dashboard() {
                           >
                             <ArrowDown size={16} />
                           </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-8 w-8 hover:bg-green-50 hover:text-green-600 rounded-full"
+                            onClick={() => setCurrent(student.id)}
+                            title="Afficher en projection"
+                          >
+                            <Eye size={16} />
+                          </Button>
                           <StudentForm 
                             initialData={student} 
                             onSubmit={(updated) => updateStudent(student.id, updated)}
@@ -238,7 +224,10 @@ export default function Dashboard() {
                             variant="ghost" 
                             size="icon" 
                             className="h-8 w-8 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-full"
-                            onClick={() => deleteStudent(student.id)}
+                            onClick={async () => {
+                              await deleteImageForStudent(student.photoUrl);
+                              deleteStudent(student.id);
+                            }}
                           >
                             <Trash2 size={16} />
                           </Button>

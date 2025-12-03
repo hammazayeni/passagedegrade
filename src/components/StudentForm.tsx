@@ -8,8 +8,8 @@ import { BELT_ORDER } from "@/lib/constants";
 import { Student, BeltLevel } from "@/types";
 import { v4 as uuidv4 } from "uuid";
 import { Plus, Save, Upload } from "lucide-react";
-import { storage } from "@/lib/firebase";
-import { ref, uploadString, getDownloadURL } from "firebase/storage";
+import { saveImageForStudent } from "@/lib/imageStore";
+import { ImageFromStore } from "@/components/ImageFromStore";
 
 interface StudentFormProps {
   onSubmit: (student: Student) => void;
@@ -22,26 +22,17 @@ export function StudentForm({ onSubmit, trigger, initialData }: StudentFormProps
   const [fullName, setFullName] = useState(initialData?.fullName || "");
   const [currentBelt, setCurrentBelt] = useState<BeltLevel>(initialData?.currentBelt || "BLANC");
   const [nextBelt, setNextBelt] = useState<BeltLevel>(initialData?.nextBelt || "DEMI-JAUNE");
-  const BASE = import.meta.env.BASE_URL || "/";
-  const [photoUrl, setPhotoUrl] = useState(initialData?.photoUrl || `${BASE}assets/default-avatar_variant_2.png`);
-  const [processingImage, setProcessingImage] = useState(false);
+  const [photoUrl, setPhotoUrl] = useState(initialData?.photoUrl || "/assets/default-avatar_variant_2.png");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (processingImage) return;
     const id = initialData?.id || uuidv4();
-    let finalPhotoUrl = photoUrl;
-    if (finalPhotoUrl && finalPhotoUrl.startsWith("data:")) {
-      if (storage) {
-        try {
-          const objectRef = ref(storage, `students/${id}.jpg`);
-          await uploadString(objectRef, finalPhotoUrl, "data_url");
-          finalPhotoUrl = await getDownloadURL(objectRef);
-        } catch {
-          finalPhotoUrl = `${BASE}assets/default-avatar_variant_2.png`;
-        }
-      } else {
-        finalPhotoUrl = `${BASE}assets/default-avatar_variant_2.png`;
+    let finalPhoto = photoUrl;
+    if (finalPhoto.startsWith("data:")) {
+      try {
+        finalPhoto = await saveImageForStudent(id, finalPhoto);
+      } catch (err) {
+        // If IndexedDB fails, keep data URL as a last resort
       }
     }
     const student: Student = {
@@ -49,7 +40,7 @@ export function StudentForm({ onSubmit, trigger, initialData }: StudentFormProps
       fullName,
       currentBelt,
       nextBelt,
-      photoUrl: finalPhotoUrl,
+      photoUrl: finalPhoto,
       order: initialData?.order || 999,
       status: initialData?.status || "PENDING",
     };
@@ -57,45 +48,49 @@ export function StudentForm({ onSubmit, trigger, initialData }: StudentFormProps
     setOpen(false);
     if (!initialData) {
       setFullName("");
-      setPhotoUrl(`${BASE}assets/default-avatar_variant_3.png`);
+      setPhotoUrl("/assets/default-avatar_variant_3.png");
     }
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    setProcessingImage(true);
-    const readAsDataURL = (f: File) => new Promise<string>((resolve, reject) => { const r = new FileReader(); r.onload = () => resolve(r.result as string); r.onerror = reject; r.readAsDataURL(f); });
-    const loadImage = (src: string) => new Promise<HTMLImageElement>((resolve, reject) => { const img = new Image(); img.onload = () => resolve(img); img.onerror = reject; img.src = src; });
-    const dataURLSize = (d: string) => { const base64 = d.split(',')[1] || ''; return Math.ceil((base64.length * 3) / 4); };
-    const compress = async (f: File, maxBytes: number) => {
-      const original = await readAsDataURL(f);
-      let img = await loadImage(original);
-      let width = Math.min(img.width, 1024);
-      let height = Math.round(img.height * (width / img.width));
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      let best = original;
-      for (let i = 0; i < 6; i++) {
-        canvas.width = width;
-        canvas.height = height;
-        ctx?.clearRect(0, 0, width, height);
-        ctx?.drawImage(img, 0, 0, width, height);
-        for (let q = 0.92; q >= 0.4; q -= 0.12) {
-          const out = canvas.toDataURL('image/jpeg', q);
-          best = out;
-          if (dataURLSize(out) <= maxBytes) return out;
-        }
-        width = Math.round(width * 0.85);
-        height = Math.round(height * 0.85);
-        if (width < 300 || height < 300) break;
-      }
-      return best;
+
+    const compressImage = (file: File, maxSize = 512, quality = 0.8): Promise<string> => {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement("canvas");
+            const scale = Math.min(maxSize / img.width, maxSize / img.height, 1);
+            canvas.width = Math.round(img.width * scale);
+            canvas.height = Math.round(img.height * scale);
+            const ctx = canvas.getContext("2d");
+            if (!ctx) {
+              reject(new Error("Canvas context not available"));
+              return;
+            }
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            const dataUrl = canvas.toDataURL("image/jpeg", quality);
+            resolve(dataUrl);
+          };
+          img.onerror = reject;
+          img.src = reader.result as string;
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
     };
-    compress(file, 500 * 1024)
-      .then((d) => setPhotoUrl(d))
-      .catch(() => setPhotoUrl(`${BASE}assets/default-avatar_variant_2.png`))
-      .finally(() => setProcessingImage(false));
+
+    try {
+      const dataUrl = await compressImage(file);
+      setPhotoUrl(dataUrl);
+    } catch (err) {
+      const reader = new FileReader();
+      reader.onloadend = () => setPhotoUrl(reader.result as string);
+      reader.readAsDataURL(file);
+    }
   };
 
   return (
@@ -158,7 +153,7 @@ export function StudentForm({ onSubmit, trigger, initialData }: StudentFormProps
           <div className="space-y-3">
             <Label className="text-gray-700 font-medium">Photo de Profil</Label>
             <div className="flex items-center gap-6 p-4 border-2 border-dashed border-gray-200 rounded-xl bg-gray-50">
-              <img src={photoUrl} alt="Aperçu" className="w-16 h-16 rounded-full object-cover border-2 border-white shadow-md" />
+            <ImageFromStore src={photoUrl} alt="Aperçu" className="w-16 h-16 rounded-full object-cover border-2 border-white shadow-md" />
               <div className="flex-1">
                 <Label htmlFor="photo-upload" className="cursor-pointer">
                   <div className="flex items-center justify-center w-full px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium text-gray-700 shadow-sm">
@@ -171,7 +166,7 @@ export function StudentForm({ onSubmit, trigger, initialData }: StudentFormProps
             </div>
           </div>
 
-          <Button type="submit" disabled={processingImage} className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-6 text-lg shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+          <Button type="submit" className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-6 text-lg shadow-md transition-all">
             <Save className="mr-2 h-5 w-5" /> {initialData ? "Enregistrer les Modifications" : "Enregistrer l'Élève"}
           </Button>
         </form>

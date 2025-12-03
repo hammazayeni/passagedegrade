@@ -43,8 +43,7 @@ export function ImportStudents({ onImport }: ImportStudentsProps) {
       const fullName = parts[0].trim();
       const currentBelt = parts[1].trim() as BeltLevel;
       const nextBelt = parts[2].trim() as BeltLevel;
-      const BASE = import.meta.env.BASE_URL || "/";
-      const photoUrl = parts[3]?.trim() || `${BASE}assets/default-avatar.png`;
+      const photoUrl = parts[3]?.trim() || "/assets/default-avatar.png";
 
       // Validate belts
       if (!BELT_ORDER.includes(currentBelt) || !BELT_ORDER.includes(nextBelt)) {
