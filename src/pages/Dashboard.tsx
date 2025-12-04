@@ -44,7 +44,7 @@ export default function Dashboard() {
           </div>
           <div className="flex flex-wrap gap-3 w-full md:w-auto">
             <Button asChild variant="outline" className="flex-1 md:flex-none w-full gap-2 border-gray-300 hover:bg-gray-50 hover:text-red-600 transition-colors">
-              <a href={`${import.meta.env.BASE_URL}projection`} target="_blank" rel="noopener">
+              <a href={`${typeof window !== 'undefined' ? window.location.origin : ''}${import.meta.env.BASE_URL}projection`} target="_blank" rel="noopener noreferrer">
                 <ExternalLink size={18} /> Projection
               </a>
             </Button>
