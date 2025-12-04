@@ -5,6 +5,7 @@ type Props = React.ImgHTMLAttributes<HTMLImageElement> & { src: string };
 
 export function ImageFromStore({ src, ...rest }: Props) {
   const [resolved, setResolved] = React.useState<string>('');
+  const fallback = `${import.meta.env.BASE_URL}assets/default-avatar_variant_2.png`;
 
   React.useEffect(() => {
     let revokeUrl: string | null = null;
@@ -12,7 +13,9 @@ export function ImageFromStore({ src, ...rest }: Props) {
     const run = async () => {
       const out = await resolveImageSrc(src);
       if (cancelled) return;
-      setResolved(out || src);
+      const isIdb = src.startsWith('idb:');
+      const finalSrc = out || (isIdb ? fallback : src);
+      setResolved(finalSrc);
       if (out && out.startsWith('blob:')) revokeUrl = out;
     };
     run();
@@ -22,6 +25,5 @@ export function ImageFromStore({ src, ...rest }: Props) {
     };
   }, [src]);
 
-  return <img src={resolved || src} {...rest} />;
+  return <img src={resolved || src || fallback} {...rest} />;
 }
-
