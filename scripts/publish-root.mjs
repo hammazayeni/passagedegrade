@@ -31,9 +31,7 @@ try {
   copyDir(dist, root);
 
   const index404 = path.join(root, '404.html');
-  if (!fs.existsSync(index404)) {
-    fs.copyFileSync(path.join(dist, 'index.html'), index404);
-  }
+  fs.copyFileSync(path.join(dist, 'index.html'), index404);
 
   const nojekyll = path.join(root, '.nojekyll');
   if (!fs.existsSync(nojekyll)) {
