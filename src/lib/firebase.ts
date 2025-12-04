@@ -15,7 +15,8 @@ export function getFirebaseApp() {
 
   const hasAllEnv = Object.values(envCfg).every(Boolean);
   const cached: Partial<typeof envCfg> | null = (typeof window !== 'undefined' && (window as unknown as { __FIREBASE_CONFIG__?: Partial<typeof envCfg> }).__FIREBASE_CONFIG__) ?? null;
-  const cfg = hasAllEnv ? envCfg : (cached as typeof envCfg) ?? null;
+  const hasAllCached = cached ? Object.values(cached).every(Boolean) : false;
+  const cfg = hasAllEnv ? envCfg : hasAllCached ? (cached as typeof envCfg) : null;
   if (!cfg) return null;
   return getApps().length ? getApps()[0] : initializeApp(cfg as unknown as typeof envCfg);
 }

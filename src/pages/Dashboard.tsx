@@ -43,11 +43,11 @@ export default function Dashboard() {
             </div>
           </div>
           <div className="flex flex-wrap gap-3 w-full md:w-auto">
-            <Link to="/projection" target="_blank" className="flex-1 md:flex-none">
-              <Button variant="outline" className="w-full gap-2 border-gray-300 hover:bg-gray-50 hover:text-red-600 transition-colors">
+            <Button asChild variant="outline" className="flex-1 md:flex-none w-full gap-2 border-gray-300 hover:bg-gray-50 hover:text-red-600 transition-colors">
+              <a href={`${import.meta.env.BASE_URL}projection`} target="_blank" rel="noopener">
                 <ExternalLink size={18} /> Projection
-              </Button>
-            </Link>
+              </a>
+            </Button>
             <ImportStudents onImport={addMultipleStudents} />
             <div className="flex-1 md:flex-none">
               <StudentForm onSubmit={addStudent} />
