@@ -194,6 +194,9 @@ export default function Projection() {
                       </div>
                     </div>
                     <div className="flex items-center gap-3 uppercase text-gray-400 font-bold">
+                      <span>
+                        Créé par Maître <span className="text-red-600">Ali ZAYANI</span>
+                      </span>
                       <span className={`inline-block px-2 py-0.5 rounded-full ${syncStatus === 'online' ? 'bg-green-900 text-green-100' : syncStatus === 'connecting' ? 'bg-yellow-900 text-yellow-100' : 'bg-red-900 text-red-100'}`}>Cloud Sync: {syncStatus}</span>
                       <button
                         className="text-white/90 hover:text-white"
