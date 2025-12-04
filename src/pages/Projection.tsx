@@ -19,6 +19,7 @@ export default function Projection() {
     : undefined;
   const positionIndex = currentStudent ? ordered.findIndex((s) => s.id === currentStudent.id) : -1;
   const positionLabel = positionIndex >= 0 ? `${positionIndex + 1} / ${ordered.length}` : "--";
+  const identValue = positionIndex >= 0 ? String(positionIndex + 1).padStart(3, '0') : "--";
   
   // Duplicate logos for infinite scroll effect
   const carouselLogos = [...LOGOS, ...LOGOS, ...LOGOS, ...LOGOS];
@@ -32,7 +33,7 @@ export default function Projection() {
   }
 
   return (
-    <div className="relative h-screen w-screen overflow-hidden bg-black text-white font-sans selection:bg-red-500 selection:text-white flex flex-col">
+    <div className="relative h-screen w-screen overflow-y-auto md:overflow-hidden bg-black text-white font-sans selection:bg-red-500 selection:text-white flex flex-col">
       {/* Background with Gradient and Texture */}
       <div 
         className="absolute inset-0 z-0 opacity-40"
@@ -145,7 +146,7 @@ export default function Projection() {
                     <p className="text-[11px] uppercase tracking-wider text-gray-400">Ordre</p>
                     <div className="mt-1 text-xs text-gray-300">
                       <p>Position: <span className="font-bold text-white">{positionLabel}</span></p>
-                      <p>Identifiant: <span className="font-bold text-white">#{currentStudent ? String(currentStudent.order).padStart(3, '0') : "--"}</span></p>
+                      <p>Identifiant: <span className="font-bold text-white">#{identValue}</span></p>
                     </div>
                   </div>
                   <div className="bg-neutral-900/60 border border-neutral-800 rounded-2xl p-4">
@@ -203,7 +204,7 @@ export default function Projection() {
         {/* Signature & Progress */}
         <div className="flex justify-between items-center px-4 md:px-8 py-2 border-t border-white/5 text-[10px] md:text-xs text-gray-500 font-mono bg-black">
           <div className="flex items-center gap-2">
-            <span className="text-red-900/50">ID: {currentStudent?.order.toString().padStart(3, '0')}</span>
+            <span className="text-red-900/50">ID: {identValue}</span>
             <div className="flex gap-1">
                {students.map((s) => (
                  <div 
