@@ -9,6 +9,7 @@ import { Student, BeltLevel } from "@/types";
 import { v4 as uuidv4 } from "uuid";
 import { Plus, Save, Upload } from "lucide-react";
 import { saveImageForStudent } from "@/lib/imageStore";
+import { uploadStudentPhotoToCloud } from "@/lib/cloudStorage";
 import { ImageFromStore } from "@/components/ImageFromStore";
 
 interface StudentFormProps {
@@ -30,9 +31,18 @@ export function StudentForm({ onSubmit, trigger, initialData }: StudentFormProps
     let finalPhoto = photoUrl;
     if (finalPhoto.startsWith("data:")) {
       try {
-        finalPhoto = await saveImageForStudent(id, finalPhoto);
+        const cloudUrl = await uploadStudentPhotoToCloud(id, finalPhoto);
+        if (cloudUrl) {
+          finalPhoto = cloudUrl;
+        } else {
+          finalPhoto = await saveImageForStudent(id, finalPhoto);
+        }
       } catch (err) {
-        // If IndexedDB fails, keep data URL as a last resort
+        try {
+          finalPhoto = await saveImageForStudent(id, finalPhoto);
+        } catch (_e) {
+          // leave data URL as last resort
+        }
       }
     }
     const student: Student = {

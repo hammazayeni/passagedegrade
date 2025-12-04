@@ -12,6 +12,10 @@ export function ImageFromStore({ src, ...rest }: Props) {
     let cancelled = false;
     const run = async () => {
       const baseSrc = src && src.trim().length > 0 ? src : fallback;
+      if (/^https?:\/\//.test(baseSrc)) {
+        setResolved(baseSrc);
+        return;
+      }
       const out = await resolveImageSrc(baseSrc);
       if (cancelled) return;
       const isIdb = baseSrc.startsWith('idb:');
