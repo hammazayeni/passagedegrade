@@ -12,7 +12,7 @@ export default function NotFoundPage() {
 
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Button asChild>
-            <a href="/">Return Home</a>
+            <a href={import.meta.env.BASE_URL}>Return Home</a>
           </Button>
           <Button variant="outline" onClick={() => window.history.back()}>
             Go Back
