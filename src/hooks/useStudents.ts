@@ -3,7 +3,6 @@ import { Student, TestStatus } from "@/types";
 import { toast } from "sonner";
 import { getDb, ensureAuth } from "@/lib/firebase";
 import { collection, onSnapshot, doc, setDoc, deleteDoc, writeBatch } from "firebase/firestore";
-import { deleteStudentPhotoFromCloudByUrl } from "@/lib/cloudStorage";
 
 const STORAGE_KEY = "taekwondo-sbeitla-data";
 
@@ -129,9 +128,6 @@ export function useStudents() {
     const db = getDb();
     if (db) {
       await deleteDoc(doc(db, "students", id));
-    }
-    if (target?.photoUrl && /^https?:\/\//.test(target.photoUrl)) {
-      await deleteStudentPhotoFromCloudByUrl(target.photoUrl);
     }
     toast.success("Élève supprimé");
   };

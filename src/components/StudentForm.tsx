@@ -9,7 +9,6 @@ import { Student, BeltLevel } from "@/types";
 import { v4 as uuidv4 } from "uuid";
 import { Plus, Save, Upload } from "lucide-react";
 import { saveImageForStudent } from "@/lib/imageStore";
-import { uploadStudentPhotoToCloud } from "@/lib/cloudStorage";
 import { ImageFromStore } from "@/components/ImageFromStore";
 
 interface StudentFormProps {
@@ -28,22 +27,9 @@ export function StudentForm({ onSubmit, trigger, initialData }: StudentFormProps
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const id = initialData?.id || uuidv4();
-    let finalPhoto = photoUrl;
+    const finalPhoto = photoUrl;
     if (finalPhoto.startsWith("data:")) {
-      try {
-        const cloudUrl = await uploadStudentPhotoToCloud(id, finalPhoto);
-        if (cloudUrl) {
-          finalPhoto = cloudUrl;
-        } else {
-          finalPhoto = await saveImageForStudent(id, finalPhoto);
-        }
-      } catch (err) {
-        try {
-          finalPhoto = await saveImageForStudent(id, finalPhoto);
-        } catch (_e) {
-          // leave data URL as last resort
-        }
-      }
+      // keep base64 data URL for Firestore sync
     }
     const student: Student = {
       id,
