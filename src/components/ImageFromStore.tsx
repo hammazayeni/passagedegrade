@@ -11,10 +11,11 @@ export function ImageFromStore({ src, ...rest }: Props) {
     let revokeUrl: string | null = null;
     let cancelled = false;
     const run = async () => {
-      const out = await resolveImageSrc(src);
+      const baseSrc = src && src.trim().length > 0 ? src : fallback;
+      const out = await resolveImageSrc(baseSrc);
       if (cancelled) return;
-      const isIdb = src.startsWith('idb:');
-      const finalSrc = out || (isIdb ? fallback : src);
+      const isIdb = baseSrc.startsWith('idb:');
+      const finalSrc = out || (isIdb ? fallback : baseSrc);
       setResolved(finalSrc);
       if (out && out.startsWith('blob:')) revokeUrl = out;
     };
@@ -25,5 +26,14 @@ export function ImageFromStore({ src, ...rest }: Props) {
     };
   }, [src]);
 
-  return <img src={resolved || src || fallback} {...rest} />;
+  return (
+    <img
+      src={resolved || src || fallback}
+      onError={(e) => {
+        const el = e.currentTarget as HTMLImageElement;
+        if (el.src !== fallback) el.src = fallback;
+      }}
+      {...rest}
+    />
+  );
 }
