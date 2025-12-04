@@ -8,14 +8,17 @@ const STORAGE_KEY = "taekwondo-sbeitla-data";
 
 export function useStudents() {
   const [students, setStudents] = useState<Student[]>([]);
-  const [syncStatus, setSyncStatus] = useState<"connecting" | "online" | "error">("connecting");
+  const [syncStatus, setSyncStatus] = useState<"connecting" | "online" | "error" | "offline">("connecting");
   const [currentId, setCurrentId] = useState<string | null>(null);
   const migratedRef = useRef(false);
 
   useEffect(() => {
     const db = getDb();
     if (!db) {
-      setSyncStatus("error");
+      const saved = localStorage.getItem(STORAGE_KEY);
+      const localList: Student[] = saved ? (() => { try { return JSON.parse(saved) as Student[]; } catch { return []; } })() : [];
+      setStudents(localList);
+      setSyncStatus("offline");
       return;
     }
 
@@ -77,8 +80,9 @@ export function useStudents() {
     setStudents(newStudents);
     const db = getDb();
     if (!db) {
-      setSyncStatus("error");
-      toast.error("Cloud sync indisponible: vérifiez la configuration Firebase.");
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(newStudents));
+      setSyncStatus("offline");
+      toast.success("Données enregistrées en local (mode hors-ligne)");
       return;
     }
     const batch = writeBatch(db);

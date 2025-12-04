@@ -39,7 +39,7 @@ export default function Dashboard() {
             <div>
               <h1 className="text-3xl font-black text-gray-900 tracking-tight">Taekwondo Sbeitla</h1>
               <p className="text-gray-500 font-medium">Tableau de Bord des Examens de Passage</p>
-              <span className={`mt-1 inline-block text-xs px-2 py-0.5 rounded-full ${syncStatus === 'online' ? 'bg-green-100 text-green-700' : syncStatus === 'connecting' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}`}>Cloud Sync: {syncStatus}</span>
+              <span className={`mt-1 inline-block text-xs px-2 py-0.5 rounded-full ${syncStatus === 'online' ? 'bg-green-100 text-green-700' : syncStatus === 'connecting' ? 'bg-yellow-100 text-yellow-700' : syncStatus === 'offline' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}`}>Cloud Sync: {syncStatus}</span>
             </div>
           </div>
           <div className="flex flex-wrap gap-3 w-full md:w-auto">

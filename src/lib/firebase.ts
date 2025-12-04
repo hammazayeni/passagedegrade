@@ -4,7 +4,7 @@ import { getStorage } from 'firebase/storage';
 import { getAuth, signInAnonymously } from 'firebase/auth';
 
 export function getFirebaseApp() {
-  const cfg = {
+  const envCfg = {
     apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
     authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
     projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
@@ -13,9 +13,11 @@ export function getFirebaseApp() {
     appId: import.meta.env.VITE_FIREBASE_APP_ID,
   } as const;
 
-  const hasAll = Object.values(cfg).every(Boolean);
-  if (!hasAll) return null;
-  return getApps().length ? getApps()[0] : initializeApp(cfg);
+  const hasAllEnv = Object.values(envCfg).every(Boolean);
+  const cached: Partial<typeof envCfg> | null = (typeof window !== 'undefined' && (window as unknown as { __FIREBASE_CONFIG__?: Partial<typeof envCfg> }).__FIREBASE_CONFIG__) ?? null;
+  const cfg = hasAllEnv ? envCfg : (cached as typeof envCfg) ?? null;
+  if (!cfg) return null;
+  return getApps().length ? getApps()[0] : initializeApp(cfg as unknown as typeof envCfg);
 }
 
 export function getDb() {
