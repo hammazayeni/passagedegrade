@@ -32,12 +32,13 @@ export const BELT_COLORS: Record<BeltLevel, { bg: string; text: string; border: 
   "3EME DAN": { bg: "bg-black", text: "text-white", border: "border-gray-800" },
 };
 
+const BASE = import.meta.env.BASE_URL;
 export const LOGOS = [
-  "/assets/logos/TAEKWONDO_SBEITLA_-removebg-preview.png",
-  "/assets/logos/kukkiwon.png",
-  "/assets/logos/Elite Sportive - 1.png",
-  "/assets/logos/img_4026_nobg_new.png",
-  "/assets/logos/WAADTI.png",
-  "/assets/logos/diamond-gym.png",
-  "/assets/logos/federation-tunisienne-de-taekwondo.png",
+  `${BASE}assets/logos/TAEKWONDO_SBEITLA_-removebg-preview.png`,
+  `${BASE}assets/logos/kukkiwon.png`,
+  `${BASE}assets/logos/Elite Sportive - 1.png`,
+  `${BASE}assets/logos/img_4026_nobg_new.png`,
+  `${BASE}assets/logos/WAADTI.png`,
+  `${BASE}assets/logos/diamond-gym.png`,
+  `${BASE}assets/logos/federation-tunisienne-de-taekwondo.png`,
 ];

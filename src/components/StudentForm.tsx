@@ -22,7 +22,7 @@ export function StudentForm({ onSubmit, trigger, initialData }: StudentFormProps
   const [fullName, setFullName] = useState(initialData?.fullName || "");
   const [currentBelt, setCurrentBelt] = useState<BeltLevel>(initialData?.currentBelt || "BLANC");
   const [nextBelt, setNextBelt] = useState<BeltLevel>(initialData?.nextBelt || "DEMI-JAUNE");
-  const [photoUrl, setPhotoUrl] = useState(initialData?.photoUrl || "/assets/default-avatar_variant_2.png");
+  const [photoUrl, setPhotoUrl] = useState(initialData?.photoUrl || `${import.meta.env.BASE_URL}assets/default-avatar_variant_2.png`);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,7 +48,7 @@ export function StudentForm({ onSubmit, trigger, initialData }: StudentFormProps
     setOpen(false);
     if (!initialData) {
       setFullName("");
-      setPhotoUrl("/assets/default-avatar_variant_3.png");
+      setPhotoUrl(`${import.meta.env.BASE_URL}assets/default-avatar_variant_3.png`);
     }
   };
 

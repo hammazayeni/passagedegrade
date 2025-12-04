@@ -37,7 +37,7 @@ export default function Projection() {
       <div 
         className="absolute inset-0 z-0 opacity-40"
         style={{
-          backgroundImage: "url('/assets/bg-taekwondo.jpg')",
+          backgroundImage: `url(${import.meta.env.BASE_URL}assets/bg-taekwondo.jpg)`,
           backgroundSize: "cover",
           backgroundPosition: "center",
           filter: "grayscale(100%) contrast(120%) brightness(60%)"

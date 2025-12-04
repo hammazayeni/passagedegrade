@@ -32,7 +32,7 @@ export default function Dashboard() {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
           <div className="flex items-center gap-4">
             <img
-              src="/assets/logos/kukkiwon.png"
+              src={`${import.meta.env.BASE_URL}assets/logos/kukkiwon.png`}
               alt="Logo"
               className="w-12 h-12 rounded-xl shadow-lg object-contain bg-white"
             />
