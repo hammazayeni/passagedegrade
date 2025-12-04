@@ -25,6 +25,9 @@ try {
     throw new Error('dist folder not found after build');
   }
 
+  const devIndexPath = path.join(root, 'index.html');
+  const hasDevIndex = fs.existsSync(devIndexPath) ? fs.readFileSync(devIndexPath, 'utf8') : null;
+
   copyDir(dist, root);
 
   const index404 = path.join(root, '404.html');
@@ -41,9 +44,13 @@ try {
   execSync('git commit -m "pages: publish build to main/root"', { stdio: 'inherit' });
   execSync('git push origin main', { stdio: 'inherit' });
 
+  if (hasDevIndex) {
+    fs.writeFileSync(devIndexPath, hasDevIndex);
+    console.log('Restored local dev index.html for development');
+  }
+
   console.log('Published build to main/root. Configure GitHub Pages: main /root.');
 } catch (err) {
   console.error(err);
   process.exit(1);
 }
-
