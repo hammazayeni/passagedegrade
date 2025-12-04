@@ -160,6 +160,50 @@ export default function Projection() {
                     <p className="mt-1 text-sm font-bold text-white">{nextStudent ? nextStudent.fullName : "Aucun"}</p>
                   </div>
                 </div>
+
+                <div className="block md:hidden mt-6">
+                  <div className="w-full overflow-hidden py-3 relative">
+                    <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-black to-transparent z-10" />
+                    <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-black to-transparent z-10" />
+                    <motion.div 
+                      className="flex items-center gap-8 w-max"
+                      animate={{ x: [0, -1000] }}
+                      transition={{ repeat: Infinity, duration: 25, ease: "linear" }}
+                    >
+                      {carouselLogos.map((logo, index) => {
+                        const filename = logo.split('/').pop() || logo;
+                        const isBig = filename === 'WAADTI.png' || filename === 'federation-tunisienne-de-taekwondo.png' || filename.toLowerCase().includes('sufetula');
+                        const isSmall = filename === 'diamond-gym.png';
+                        const box = isBig ? 'h-12 w-28' : isSmall ? 'h-8 w-16' : 'h-10 w-20';
+                        return (
+                          <div key={index} className={`${box} flex-shrink-0 grayscale opacity-80`}>
+                            <img src={logo} alt="Partner Logo" className="h-full w-full object-contain" />
+                          </div>
+                        );
+                      })}
+                    </motion.div>
+                  </div>
+
+                  <div className="flex justify-between items-center px-4 py-2 border-t border-white/5 text-[10px] text-gray-500 font-mono bg-black/60 rounded-xl">
+                    <div className="flex items-center gap-2">
+                      <span className="text-red-900/50">ID: {identValue}</span>
+                      <div className="flex gap-1">
+                        {students.map((s) => (
+                          <div key={s.id} className={`h-1 rounded-full ${s.id === currentStudent?.id ? "w-4 bg-red-800" : "w-1 bg-gray-900"}`} />
+                        ))}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 uppercase text-gray-400 font-bold">
+                      <span className={`inline-block px-2 py-0.5 rounded-full ${syncStatus === 'online' ? 'bg-green-900 text-green-100' : syncStatus === 'connecting' ? 'bg-yellow-900 text-yellow-100' : 'bg-red-900 text-red-100'}`}>Cloud Sync: {syncStatus}</span>
+                      <button
+                        className="text-white/90 hover:text-white"
+                        onClick={() => { logout(); navigate("/"); }}
+                      >
+                        Déconnexion
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
             </motion.div>
           )}
@@ -167,7 +211,7 @@ export default function Projection() {
       </div>
 
       {/* Footer Section - Fixed to bottom to ensure visibility */}
-      <div className="absolute bottom-0 left-0 right-0 z-50 bg-black/90 backdrop-blur-xl border-t border-white/10 shadow-[0_-10px_40px_rgba(0,0,0,0.8)]">
+      <div className="hidden md:block absolute bottom-0 left-0 right-0 z-50 bg-black/90 backdrop-blur-xl border-t border-white/10 shadow-[0_-10px_40px_rgba(0,0,0,0.8)]">
         
         {/* Infinite Logo Carousel */}
         <div className="w-full overflow-hidden py-3 md:py-4 relative">
