@@ -2,9 +2,6 @@
   "name": "taekwondo-sbeitla-app",
   "type": "module",
   "version": "1.0.0",
-  "engines": {
-    "node": "18.20.3"
-  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
