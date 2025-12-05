@@ -5,7 +5,7 @@ import path from 'path';
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
   const envBase = process.env.VITE_BASE_PATH;
-  const base = envBase ?? '/';
+  const base = envBase ?? (mode === 'production' ? './' : '/');
   return {
     base,
     plugins: [react()],
