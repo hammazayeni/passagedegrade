@@ -1,0 +1,16 @@
+[build]
+  command = "npm --prefix shadcn-ui ci && npm --prefix shadcn-ui run build"
+  publish = "shadcn-ui/dist"
+
+[build.environment]
+  VITE_BASE_PATH = "/"
+  NODE_VERSION = "18"
+
+[context.production.environment]
+  VITE_BASE_PATH = "/"
+  NODE_VERSION = "18"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
