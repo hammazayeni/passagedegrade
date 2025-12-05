@@ -1,5 +1,5 @@
 [build]
-  command = "npm --prefix shadcn-ui ci && npm --prefix shadcn-ui run build"
+  command = "npm --prefix shadcn-ui install --no-audit --no-fund --legacy-peer-deps && npm --prefix shadcn-ui run build"
   publish = "shadcn-ui/dist"
 
 [build.environment]
