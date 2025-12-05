@@ -1,7 +1,6 @@
 [build]
-  base = "shadcn-ui"
-  command = "npm ci && npm run build"
-  publish = "dist"
+  command = "npm --prefix shadcn-ui ci && npm --prefix shadcn-ui run build"
+  publish = "shadcn-ui/dist"
 
 [build.environment]
   VITE_BASE_PATH = "/"
