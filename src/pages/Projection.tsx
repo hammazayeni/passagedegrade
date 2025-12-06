@@ -105,7 +105,7 @@ export default function Projection() {
                     <Clock size={24} className="md:w-8 md:h-8" />
                   )}
                   <span className="text-xl md:text-2xl font-black uppercase tracking-wider">
-                    {currentStudent.status === "APPROVED" ? "ADMIS" : currentStudent.status === "REFUSED" ? "REFUSÉ" : "EN TEST"}
+                    {currentStudent.status === "APPROVED" ? "ADMIS" : currentStudent.status === "REFUSED" ? "AJOURNÉ" : "EN TEST"}
                   </span>
                 </motion.div>
               </div>
@@ -152,7 +152,7 @@ export default function Projection() {
                   <div className="bg-neutral-900/60 border border-neutral-800 rounded-2xl p-4">
                     <p className="text-[11px] uppercase tracking-wider text-gray-400">Résultat</p>
                     <p className="mt-1 text-sm md:text-base font-black uppercase text-white">
-                      {currentStudent ? (currentStudent.status === "APPROVED" ? "ADMIS" : currentStudent.status === "REFUSED" ? "REFUSÉ" : "EN ATTENTE") : "--"}
+                      {currentStudent ? (currentStudent.status === "APPROVED" ? "ADMIS" : currentStudent.status === "REFUSED" ? "AJOURNÉ" : "EN ATTENTE") : "--"}
                     </p>
                   </div>
                   <div className="bg-neutral-900/60 border border-neutral-800 rounded-2xl p-4">

@@ -14,7 +14,7 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
-      <BrowserRouter basename={import.meta.env.BASE_URL}>
+      <BrowserRouter basename="/">
         <Routes>
           <Route path="/" element={<Login />} />
           <Route

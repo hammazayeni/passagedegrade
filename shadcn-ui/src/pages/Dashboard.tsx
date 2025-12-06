@@ -176,9 +176,9 @@ export default function Dashboard() {
                                 : "text-gray-400 hover:text-red-600 hover:border-red-200"
                             }`}
                             onClick={() => setStatus(student.id, "REFUSED")}
-                            title="Refusé"
+                            title="Ajourné"
                           >
-                            <X size={16} className="mr-1" /> {student.status === "REFUSED" ? "Refusé" : "Refuser"}
+                            <X size={16} className="mr-1" /> {student.status === "REFUSED" ? "Ajourné" : "Ajourner"}
                           </Button>
                         </div>
                       </TableCell>
